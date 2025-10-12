@@ -1,0 +1,69 @@
+/* ===========================
+   ChefGrid Styles
+   =========================== */
+
+/* Overall section */
+.chef-grid {
+  padding: 60px 20px;
+  text-align: center;
+  background-color: #fff;
+}
+
+/* Section heading */
+.chef-grid h2 {
+  font-size: 2rem;
+  margin-bottom: 40px;
+  font-weight: 600;
+  color: #222;
+}
+
+/* Grid layout container */
+.chef-grid .grid {
+  display: flex;                  /* Place items side by side */
+  justify-content: center;        /* Center them horizontally */
+  align-items: flex-start;        /* Align tops of cards */
+  flex-wrap: wrap;                /* Allow wrapping on smaller screens */
+  gap: 40px;                      /* Space between chef cards */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Individual chef card */
+.chef-card {
+  background: #fafafa;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  padding: 20px;
+  width: 250px;                   /* Control card width */
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect */
+.chef-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+/* Chef image */
+.chef-card img {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+/* Chef name */
+.chef-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+/* Chef description */
+.chef-card p {
+  font-size: 0.95rem;
+  color: #666;
+}

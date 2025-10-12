@@ -1,0 +1,58 @@
+#!/bin/zsh
+# =========================================================
+# chefstart
+# Full automation: sync, build, and deploy Chefs2Table
+# =========================================================
+
+# Set project directory
+PROJECT_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs/GitHub/chefs2table-prod"
+
+echo "📂 Current directory: $PROJECT_DIR"
+cd "$PROJECT_DIR" || { echo "❌ Failed to navigate to project directory"; exit 1; }
+
+# Kill any process currently running on port 3000 (React dev server)
+PID=$(lsof -ti :3000)
+if [ -n "$PID" ]; then
+    echo "✅ Killing existing process on port 3000: $PID"
+    kill -9 $PID
+else
+    echo "✅ No existing process running on port 3000"
+fi
+
+# Check for unstaged local changes
+if ! git diff-index --quiet HEAD --; then
+    echo "⚠️ You have unstaged local changes."
+    echo "💾 Committing changes locally with timestamp..."
+    git add .
+    git commit -m "Local changes before chefstart $(date '+%Y-%m-%d %H:%M:%S')"
+fi
+
+# Pull latest changes from GitHub safely
+echo "🔄 Pulling latest changes from GitHub..."
+git pull origin main --rebase || {
+    echo "❌ Git pull failed. Resolve conflicts manually."
+    exit 1
+}
+
+# Install/update dependencies
+echo "📦 Installing dependencies..."
+npm install
+
+# Start React dev server (for local testing)
+echo "🚀 Starting React development server..."
+npm start &
+
+# Optional: Build production bundle for deployment
+echo "📦 Building production bundle..."
+npm run build
+
+# Deploy to Cloudflare Pages
+echo "☁️ Deploying to Cloudflare Pages..."
+# Ensure pages_build_output_dir is set in wrangler.toml or pass it explicitly
+wrangler pages deploy build --commit-dirty=true || {
+    echo "❌ Deployment failed"
+    exit 1
+}
+
+echo "✅ Chefstart finished successfully!"
+

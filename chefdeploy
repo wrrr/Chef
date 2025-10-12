@@ -1,0 +1,53 @@
+#!/bin/zsh
+# =========================================================
+# chefdeploy
+# Build production bundle and deploy to Cloudflare Pages
+# =========================================================
+
+# Navigate to project directory
+cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/GitHub/chefs2table-prod || {
+    echo "❌ Failed to navigate to project directory"
+    exit 1
+}
+
+# Stage any local changes
+echo "📂 Staging local changes..."
+git add .
+
+# Commit changes with timestamp
+git commit -m "Local update $(date '+%Y-%m-%d %H:%M:%S')" 2>/dev/null || {
+    echo "ℹ️ No changes to commit"
+}
+
+# Pull latest changes from GitHub main branch
+echo "🔄 Pulling latest changes from GitHub..."
+git pull origin main --rebase || {
+    echo "⚠️ Git pull failed. Please resolve conflicts manually."
+}
+
+# Install dependencies
+echo "📦 Installing dependencies..."
+npm install
+
+# Build production bundle
+echo "📦 Building production bundle..."
+npm run build || {
+    echo "❌ Production build failed"
+    exit 1
+}
+
+# Deploy to Cloudflare Pages
+echo "☁️ Deploying to Cloudflare Pages..."
+# Use 'pages deploy' if using latest Wrangler
+wrangler pages deploy build || {
+    echo "❌ Deployment failed"
+    exit 1
+}
+
+# Open the live site
+LIVE_URL="https://chefs2table-prod.pages.dev"
+echo "🌐 Opening live site: $LIVE_URL"
+open $LIVE_URL
+
+echo "✅ Deployment complete!"
+

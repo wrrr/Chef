@@ -1,0 +1,90 @@
+#!/bin/zsh
+# =========================================================
+# chefstart
+# Fully automated script:
+# - clear terminal
+# - sync local repo with GitHub
+# - commit local changes
+# - pull latest main branch
+# - kill any running React dev server
+# - start React dev server in background
+# - build production
+# - deploy to Cloudflare Pages
+# =========================================================
+
+# -----------------------------
+# 0. Clear terminal for clean output
+# -----------------------------
+clear
+echo "🟢 Starting chefstart automation..."
+
+# -----------------------------
+# 1. Navigate to project directory
+# -----------------------------
+PROJECT_DIR=~/Library/Mobile\ Documents/com~apple~CloudDocs/GitHub/chefs2table-prod
+cd "$PROJECT_DIR" || {
+    echo "❌ Failed to navigate to project directory: $PROJECT_DIR"
+    exit 1
+}
+echo "📂 Navigated to project directory."
+
+# -----------------------------
+# 2. Stage all local changes
+# -----------------------------
+echo "📝 Staging local changes..."
+git add .
+
+# -----------------------------
+# 3. Commit changes with timestamp
+# -----------------------------
+echo "💾 Committing local changes..."
+git commit -m "Local update $(date '+%Y-%m-%d %H:%M:%S')" 2>/dev/null || {
+    echo "ℹ️ No changes to commit."
+}
+
+# -----------------------------
+# 4. Pull latest changes from GitHub main branch
+# -----------------------------
+echo "⬇️ Pulling latest changes from GitHub..."
+git pull origin main --rebase || {
+    echo "❌ Git pull failed. Resolve conflicts manually."
+    exit 1
+}
+
+# -----------------------------
+# 5. Kill any running React dev server
+# -----------------------------
+PID=$(lsof -ti :3000)
+if [ -n "$PID" ]; then
+    echo "💀 Killing existing React dev server on port 3000: $PID"
+    kill -9 $PID
+else
+    echo "ℹ️ No React dev server running on port 3000"
+fi
+
+# -----------------------------
+# 6. Start React development server in background
+# -----------------------------
+echo "🚀 Starting React development server in background..."
+npm start &
+
+# -----------------------------
+# 7. Build production version
+# -----------------------------
+echo "🏗 Building production version..."
+npm run build || {
+    echo "❌ Production build failed. Aborting deployment."
+    exit 1
+}
+
+# -----------------------------
+# 8. Deploy to Cloudflare Pages
+# -----------------------------
+echo "☁️ Deploying to Cloudflare Pages..."
+npx wrangler pages publish build --project-name chefs2table-prod || {
+    echo "❌ Deployment failed. Check your Cloudflare configuration."
+    exit 1
+}
+
+echo "✅ Automation complete! React dev server running locally and production deployed."
+

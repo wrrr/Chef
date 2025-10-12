@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# =====================================
+# 🧑‍🍳 CHEF CONTROL PANEL — PRO KITCHEN EDITION
+# =====================================
+
+progress_dots() { for i in {1..3}; do echo -n "."; sleep 0.5; done; echo ""; }
+
+auto_repair() {
+  echo "🔍 Checking project dependencies..."
+  if [ ! -d "node_modules" ] || [ ! -f "node_modules/react/package.json" ]; then
+    echo "⚙️ Missing dependencies detected. Running npm install"
+    progress_dots
+    npm install > /dev/null 2>&1
+    if [ $? -eq 0 ]; then echo "✅ Dependencies installed!"; else echo "❌ npm install failed!"; exit 1; fi
+  else
+    echo "✅ Dependencies look good!"
+  fi
+}
+
+separator() { echo ""; echo "====================================="; }
+
+snapshot_before_preview() {
+  tagname="autosnapshot-$(date +%Y%m%d%H%M%S)"
+  echo "💾 Creating automatic snapshot: $tagname"
+  git add .
+  git commit -m "Auto snapshot before preview $tagname" >/dev/null 2>&1
+  git tag "$tagname"
+  git push origin "$tagname"
+  echo "✅ Snapshot '$tagname' created and pushed."
+}
+
+kill_port() {
+  PORTNUM=$1
+  PID=$(lsof -t -i:$PORTNUM)
+  if [ ! -z "$PID" ]; then
+    echo "🛑 Port $PORTNUM is in use by PID $PID. Killing process..."
+    kill -9 $PID
+  fi
+}
+
+clear
+separator
+echo "1) 🚧 Launch Website Preview (Local)"
+echo "2) 📦 Prepare Website for Launch (Build)"
+echo "3) 🌍 Publish Live Website (Cloudflare)"
+echo "4) 🧹 Deep Clean & Reset Project"
+echo "5) 🗂 System Snapshot (Git Tag Backup & Restore)"
+separator
+read -p "Enter 1, 2, 3, 4, or 5: " choice
+
+auto_repair
+
+case $choice in
+  1)
+    snapshot_before_preview
+    kill_port 3002  # kill port to avoid react-scripts asking for new port
+    echo "🚀 Launching website preview locally on port 3002..."
+    progress_dots
+    PORT=3002 BROWSER=none npm start
+    ;;
+  2)
+    echo "📦 Preparing production build..."
+    progress_dots
+    npm run build
+    ;;
+  3)
+    echo "🌍 Publishing website via Cloudflare..."
+    progress_dots
+    npx wrangler publish
+    ;;
+  4)
+    echo "🧹 Deep cleaning project..."
+    progress_dots
+    rm -rf node_modules build .cache
+    echo "✅ Cleanup complete. Reinstall with npm install."
+    ;;
+  5)
+    echo "🗂 System Snapshot Menu"
+    separator
+    echo "1) 💾 Create/Update Snapshot (Git Tag)"
+    echo "2) 🔄 Restore from Snapshot"
+    read -p "Enter 1 or 2: " sys_choice
+    case $sys_choice in
+      1)
+        read -p "Enter snapshot name (e.g., stable-v1): " tagname
+        if git rev-parse "$tagname" >/dev/null 2>&1; then
+          echo "⚠️ Tag '$tagname' exists. Overwriting..."
+          git tag -d "$tagname"
+          git push --delete origin "$tagname"
+        fi
+        git add .
+        git commit -m "Snapshot: $tagname" >/dev/null 2>&1
+        git tag "$tagname"
+        git push origin "$tagname"
+        echo "✅ Snapshot '$tagname' created."
+        ;;
+      2)
+        read -p "Enter snapshot name to restore (e.g., stable-v1): " tagname
+        git fetch --tags
+        git reset --hard "$tagname"
+        echo "✅ Restored to snapshot '$tagname'."
+        ;;
+      *)
+        echo "❌ Invalid option."
+        ;;
+    esac
+    ;;
+  *)
+    echo "❌ Invalid choice."
+    exit 1
+    ;;
+esac
+
+separator
+echo "💡 Tip: Re-run anytime with './chef'"
