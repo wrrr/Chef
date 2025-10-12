@@ -1,0 +1,48 @@
+#!/bin/bash
+# =========================================================
+# deploychefs
+# Builds and deploys the Chefs2Table site to Cloudflare Pages
+# =========================================================
+
+PROJECT_DIR=~/Library/Mobile\ Documents/com~apple~CloudDocs/GitHub/chefs2table-prod
+
+echo "🚀 Starting Cloudflare deployment for Chefs2Table..."
+
+# Navigate to the project directory
+cd "$PROJECT_DIR" || {
+    echo "❌ Failed to navigate to project directory"
+    exit 1
+}
+
+# Kill any local dev servers
+PID=$(lsof -ti :3000)
+if [ -n "$PID" ]; then
+    echo "🧹 Cleaning up local dev server on port 3000: $PID"
+    kill -9 $PID
+else
+    echo "✅ No local dev server running"
+fi
+
+# Install dependencies (optional but safe)
+echo "📦 Installing dependencies..."
+npm install
+
+# Build production bundle
+echo "🏗️  Building optimized production build..."
+npm run build || {
+    echo "❌ Build failed!"
+    exit 1
+}
+
+# Deploy to Cloudflare Pages
+echo "🌍 Deploying to Cloudflare Pages..."
+wrangler pages deploy build --project-name=chefs2table-prod || {
+    echo "❌ Deployment failed!"
+    exit 1
+}
+
+# Open your live site
+echo "✅ Deployment complete!"
+echo "🌐 Opening site: https://chefs2table-prod.pages.dev"
+open "https://chefs2table-prod.pages.dev"
+
