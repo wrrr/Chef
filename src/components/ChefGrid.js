@@ -4,24 +4,14 @@
 import React from "react";
 
 // ===========================
-// Import chef images (actual filenames in your assets folder)
+// Import chef images
+// (use the same filenames that actually exist in /components folder)
 // ===========================
-import Chef1Img from "../components/chef1.jpg";
-import Chef2Img from "../components/chef2.jpg";
-import Chef3Img from "../components/chef3.jpg";
-import Chef4Img from "../components/chef4.jpg";
-import Chef5Img from "../components/chef5.jpg";
-
-// ===========================
-// Chef data array
-// ===========================
-const chefs = [
-  { name: "Maria", image: Chef1Img, description: "Delicious meals, exceptional deals" },
-  { name: "Marcus", image: Chef2Img, description: "Delicious meals, exceptional deals" },
-  { name: "Luis", image: Chef3Img, description: "Delicious meals, exceptional deals" },
-  { name: "Ana", image: Chef4Img, description: "Delicious meals, exceptional deals" },
-  { name: "Tom", image: Chef5Img, description: "Delicious meals, exceptional deals" }, // Example
-];
+import Chef1 from "./chef1.jpg";
+import Chef2 from "./chef2.jpg";
+import Chef3 from "./chef3.jpg";
+import Chef4 from "./chef4.jpg";
+import Chef5 from "./chef5.jpg";
 
 // ===========================
 // ChefGrid component
@@ -32,20 +22,42 @@ export default function ChefGrid() {
       {/* Grid heading */}
       <h2>Meet Our Chefs</h2>
 
-      {/* Chef cards container */}
-      <div className="grid">
-        {chefs.map((chef, index) => (
-          <div key={index} className="chef-card">
-            {/* Chef image */}
-            <img src={chef.image} alt={chef.name} />
+      {/* Chef card grid */}
+      <div className="chef-grid-wrapper">
+        {/* Chef 1 */}
+        <div className="chef-card">
+          <img src={Chef1} alt="Chef Maria" />
+          <h3>Chef Maria</h3>
+          <p>Delicious meals, exceptional deals</p>
+        </div>
 
-            {/* Chef name */}
-            <h3>{chef.name}</h3>
+        {/* Chef 2 */}
+        <div className="chef-card">
+          <img src={Chef2} alt="Chef Marcus" />
+          <h3>Chef Marcus</h3>
+          <p>Delicious meals, exceptional deals</p>
+        </div>
 
-            {/* Chef description */}
-            <p>{chef.description}</p>
-          </div>
-        ))}
+        {/* Chef 3 */}
+        <div className="chef-card">
+          <img src={Chef3} alt="Chef Luis" />
+          <h3>Chef Luis</h3>
+          <p>Delicious meals, exceptional deals</p>
+        </div>
+
+        {/* Chef 4 */}
+        <div className="chef-card">
+          <img src={Chef4} alt="Chef Ana" />
+          <h3>Chef Ana</h3>
+          <p>Delicious meals, exceptional deals</p>
+        </div>
+
+        {/* Chef 5 */}
+        <div className="chef-card">
+          <img src={Chef5} alt="Chef Carlos" />
+          <h3>Chef Carlos</h3>
+          <p>Delicious meals, exceptional deals</p>
+        </div>
       </div>
     </section>
   );
