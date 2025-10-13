@@ -165,7 +165,7 @@ a {
   text-align: center;
 }
 
-.chef-grid .grid {
+.chef-grid-wrapper {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 24px;
@@ -307,7 +307,7 @@ a {
     gap: 16px;
   }
 
-  .chef-grid .grid {
+  .chef-grid-wrapper {
     grid-template-columns: 1fr; /* stack chefs on small screens */
   }
 }
