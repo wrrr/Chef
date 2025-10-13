@@ -53,7 +53,6 @@ while true; do
       npm start
       read -p "Press Enter to return to menu..."
       ;;
-
     2)
       echo "📦 Building production version..."
       auto_repair
@@ -61,7 +60,6 @@ while true; do
       echo "✅ Build complete! Files in /build"
       read -p "Press Enter to return to menu..."
       ;;
-
     3)
       echo "🌍 Publishing website via Cloudflare..."
       auto_repair
@@ -75,7 +73,6 @@ while true; do
       fi
       read -p "Press Enter to return to menu..."
       ;;
-
     4)
       echo "🧹 Resetting project..."
       rm -rf node_modules build package-lock.json
@@ -84,14 +81,22 @@ while true; do
       echo "✅ Project reset complete."
       read -p "Press Enter to return to menu..."
       ;;
-
     5)
       echo "🔄 Syncing local repository with GitHub..."
+      
+      # Check for unfinished merge
+      if [ -f ".git/MERGE_HEAD" ]; then
+        echo "❗ There is an unfinished merge. Resolve it manually first."
+        read -p "Press Enter to return to menu..."
+        continue
+      fi
+
+      # Check for unstaged changes
       if ! git diff --quiet; then
-        echo "❗ You have unstaged changes."
+        echo "❗ You have unstaged or uncommitted changes."
         echo "1️⃣ Commit changes"
         echo "2️⃣ Stash changes"
-        echo "3️⃣ Cancel"
+        echo "3️⃣ Cancel sync"
         read -p "Enter 1, 2, or 3: " action
         case $action in
           1)
@@ -114,19 +119,45 @@ while true; do
             ;;
         esac
       fi
+
+      # Pull and push
       git config pull.rebase false
-      git pull origin main
-      git push origin main
+      git pull --rebase origin main || {
+        echo "❌ Pull failed. Resolve conflicts manually."
+        read -p "Press Enter to return to menu..."
+        continue
+      }
+      git push origin main || {
+        echo "❌ Push failed. Make sure the branch is up-to-date."
+        read -p "Press Enter to return to menu..."
+        continue
+      }
+
       echo "✅ GitHub sync complete!"
+
+      # -----------------------------
+      # Auto-refresh Builder.io
+      # -----------------------------
+      echo "🔁 Triggering Builder.io fetch..."
+      BUILDER_PROJECT_API_KEY="YOUR_BUILDER_PROJECT_API_KEY"
+      if [ -z "$BUILDER_PROJECT_API_KEY" ]; then
+        echo "❌ Builder.io API key not set. Skipping Builder.io sync."
+      else
+        curl -X POST "https://builder.io/api/v1/publish/${BUILDER_PROJECT_API_KEY}?branch=main" \
+          -H "Content-Type: application/json" \
+          -d '{"publish":true}'
+        if [ $? -eq 0 ]; then
+          echo "✅ Builder.io fetch triggered!"
+        else
+          echo "❌ Failed to trigger Builder.io."
+        fi
+      fi
+
       read -p "Press Enter to return to menu..."
       ;;
 
     6)
-      echo "🔁 Syncing with Builder.io..."
-      # Replace the following with your Builder.io CLI or API command
-      # Example: builder sync
-      echo "⚠️  Make sure your Builder.io CLI/API is configured correctly."
-      echo "Sync command executed (simulate or add CLI/API call here)."
+      echo "🔁 Manual Builder.io sync..."
       read -p "Press Enter to return to menu..."
       ;;
 
