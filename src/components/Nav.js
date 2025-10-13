@@ -24,7 +24,7 @@ export default function Nav() {
         {/* Brand text */}
         <div>
           <h1>Chefs2Table</h1>
-          <small>Delicious meals, exceptional deals</small>
+          <small>Delicious Meals, Exceptional Deals.</small>
         </div>
       </div>
 
