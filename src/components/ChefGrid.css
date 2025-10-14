@@ -1,0 +1,46 @@
+.chef-heading{
+  color: rgb(155, 28, 24);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 46px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.chef-section{
+  font-weight: 400;
+  max-width: 1160px;
+  margin: 40px 0;
+  padding: 0 20px;
+}
+
+.chef-grid-wrapper{
+  display: grid;
+  align-items: start;
+  font-weight: 400;
+  gap: 24px;
+  grid-template: none / repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.chef-card{
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: rgba(0, 0, 0, 0.08) 0px 6px 18px 0px;
+  overflow: hidden;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.chef-card img{
+  width: 100%;
+  display: block;
+}
+
+.chef-card h3{
+  margin: 12px 0 6px;
+}
+
+.chef-card p{
+  margin: 0 0 16px;
+  color: #555;
+}

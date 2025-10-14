@@ -1,21 +1,18 @@
 import React from "react";
+import "./Dashboard.css";
 
 export default function OrderWidget() {
-  // placeholder data
-  const orders = [
-    { id: 1, name: "John Doe", status: "Pending" },
-    { id: 2, name: "Jane Smith", status: "Completed" },
-  ];
-
   return (
-    <div className="widget order-widget">
-      <h2>Orders</h2>
-      <ul>
-        {orders.map((o) => (
-          <li key={o.id}>
-            {o.name} - <strong>{o.status}</strong>
-          </li>
-        ))}
+    <div className="widget">
+      <h2 className="widget-title" style={{ color: '#9B1C18' }}>Orders</h2>
+
+      <ul className="widget-list">
+        <li>
+          John Doe - <span className="status">Pending</span>
+        </li>
+        <li>
+          Jane Smith - <span className="status">Completed</span>
+        </li>
       </ul>
     </div>
   );

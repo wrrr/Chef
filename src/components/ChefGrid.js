@@ -2,6 +2,7 @@
 // Import React
 // ===========================
 import React from "react";
+import "./ChefGrid.css";
 
 // ===========================
 // Import chef images
@@ -20,45 +21,47 @@ import chefs from "./Chefs";
 // ===========================
 export default function ChefGrid() {
   return (
-    <section className="chef-grid container">
-      <h2>Meet Our Chefs</h2>
+    <>
+      <div className="chef-heading">Meet Our Chefs</div>
 
-      <div className="chef-grid-wrapper">
-        {/* Chef 1 */}
-        <div className="chef-card">
-          <img src={Chef1} alt="Chef Maria" />
-          <h3>Chef Maria</h3>
-          <p>Farm-to-Table Culinary Expert</p>
-        </div>
+      <section className="chef-grid container chef-section">
+        <div className="chef-grid-wrapper">
+          {/* Chef 1 */}
+          <div className="chef-card">
+            <img src={Chef1} alt="Chef Maria" />
+            <h3>Chef Maria</h3>
+            <p>Farm-to-Table Culinary Expert</p>
+          </div>
 
-        {/* Chef 2 */}
-        <div className="chef-card">
-          <img src={Chef2} alt="Chef Marcus" />
-          <h3>Chef Marcus</h3>
-          <p>Master of savory delights</p>
-        </div>
+          {/* Chef 2 */}
+          <div className="chef-card">
+            <img src={Chef2} alt="Chef Marcus" />
+            <h3>Chef Marcus</h3>
+            <p>Master of savory delights</p>
+          </div>
 
-        {/* Chef 3 */}
-        <div className="chef-card">
-          <img src={Chef3} alt="Chef Luis" />
-          <h3>Chef Luis</h3>
-          <p>Gourmet specialist in seasonal dishes</p>
-        </div>
+          {/* Chef 3 */}
+          <div className="chef-card">
+            <img src={Chef3} alt="Chef Luis" />
+            <h3>Chef Luis</h3>
+            <p>Gourmet specialist in seasonal dishes</p>
+          </div>
 
-        {/* Chef 4 */}
-        <div className="chef-card">
-          <img src={Chef4} alt="Chef Ana" />
-          <h3>Chef Ana</h3>
-          <p>Bringing desserts to life</p>
-        </div>
+          {/* Chef 4 */}
+          <div className="chef-card">
+            <img src={Chef4} alt="Chef Ana" />
+            <h3>Chef Ana</h3>
+            <p>Bringing desserts to life</p>
+          </div>
 
-        {/* Chef 5 */}
-        <div className="chef-card">
-          <img src={Chef5} alt="Chef Quinn" />
-          <h3>Chef Quinn</h3>
-          <p>Expert in artisanal breads & pastries</p>
+          {/* Chef 5 */}
+          <div className="chef-card">
+            <img src={Chef5} alt="Chef Quinn" />
+            <h3>Chef Quinn</h3>
+            <p>Expert in artisanal breads & pastries</p>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }

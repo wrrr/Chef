@@ -1,139 +1,65 @@
 #!/bin/bash
+# ====================================================
+# Chef Project Management Script
+# ====================================================
 
-# =====================================
-# 🧑‍🍳 CHEF CONTROL PANEL — PRO KITCHEN EDITION
-# =====================================
+clear
+echo "====================================="
+echo "1️⃣  Launch Website Preview (Local)"
+echo "2️⃣  Prepare Website for Launch (Build)"
+echo "3️⃣  Publish Live Website (Cloudflare)"
+echo "4️⃣  Deep Clean & Reset Project"
+echo "5️⃣  Sync Local Repository with GitHub"
+echo "6️⃣  Sync with Builder.io"
+echo "7️⃣  Launch Builder.io Editor (Local)"
+echo "====================================="
+read -p "Enter 1, 2, 3, 4, 5, 6, or 7: " choice
 
-# -----------------------------
-# Helper: simple animated dots
-# -----------------------------
-progress_dots() {
-  for i in {1..3}; do
-    echo -n "."
-    sleep 0.4
-  done
-  echo ""
-}
+case $choice in
+  1)
+    echo "🚀 Launching local preview on http://localhost:3000 ..."
+    npm start
+    ;;
 
-# -----------------------------
-# Helper: auto-repair node_modules
-# -----------------------------
-auto_repair() {
-  echo "🔍 Checking project dependencies..."
-  if [ ! -d "node_modules" ] || [ ! -f "node_modules/react/package.json" ]; then
-    echo "⚙️  Missing dependencies detected. Running npm install"
-    progress_dots
-    npm install > /dev/null 2>&1
-    echo "✅ Dependencies installed!"
-  else
-    echo "✅ All dependencies look good!"
-  fi
-}
+  2)
+    echo "🏗️  Building website for deployment..."
+    npm run build
+    ;;
 
-# -----------------------------
-# Main menu loop
-# -----------------------------
-while true; do
-  clear
-  echo "====================================="
-  echo "1️⃣  🚀 Launch Website Preview (Local)"
-  echo "2️⃣  📦 Prepare Website for Launch (Build)"
-  echo "3️⃣  🌍 Publish Live Website (Cloudflare)"
-  echo "4️⃣  🧹 Deep Clean & Reset Project"
-  echo "5️⃣  🔄 Sync Local Repository with GitHub"
-  echo "6️⃣  🔁 Sync with Builder.io"
-  echo "====================================="
-  read -p "Enter 1, 2, 3, 4, 5, or 6: " choice
-  echo ""
+  3)
+    echo "🌐 Publishing to Cloudflare Pages..."
+    npm run deploy
+    ;;
 
-  # Force lowercase (compatible with older macOS Bash)
-  choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]')
+  4)
+    echo "🧹 Performing deep clean..."
+    rm -rf node_modules build .cache
+    npm cache clean --force
+    npm install
+    echo "✅ Project cleaned and dependencies reinstalled."
+    ;;
 
-  case $choice in
-    1)
-      echo "🚀 Launching local preview..."
-      auto_repair
-      npm start
-      read -p "Press Enter to return to menu..."
-      ;;
+  5)
+    echo "🔄 Syncing local repository with GitHub..."
+    git add .
+    git commit -m "Sync local changes"
+    git pull origin main --rebase
+    git push origin main
+    echo "✅ GitHub sync complete!"
+    ;;
 
-    2)
-      echo "📦 Building production version..."
-      auto_repair
-      npm run build
-      echo "✅ Build complete! Files in /build"
-      read -p "Press Enter to return to menu..."
-      ;;
+  6)
+    echo "🔗 Syncing with Builder.io..."
+    npx @builder.io/cli pull
+    echo "✅ Builder.io sync complete!"
+    ;;
 
-    3)
-      echo "🌍 Publishing website via Cloudflare..."
-      auto_repair
-      npm run build
-      echo "🚀 Deploying to Cloudflare Pages..."
-      wrangler pages deploy build
-      if [ $? -eq 0 ]; then
-        echo "✅ Published successfully!"
-      else
-        echo "❌ Deployment failed."
-      fi
-      read -p "Press Enter to return to menu..."
-      ;;
+  7)
+    echo "🎨 Launching Builder.io Editor (Local)..."
+    npx "builder.io@latest" launch --serverUrl http://localhost:3000
+    ;;
 
-    4)
-      echo "🧹 Resetting project..."
-      rm -rf node_modules build package-lock.json
-      echo "♻️  Reinstalling clean environment..."
-      npm install
-      echo "✅ Project reset complete."
-      read -p "Press Enter to return to menu..."
-      ;;
-
-    5)
-      echo "🔄 Syncing local repository with GitHub..."
-      if ! git diff --quiet; then
-        echo "❗ You have unstaged changes."
-        echo "1️⃣ Commit changes"
-        echo "2️⃣ Stash changes"
-        echo "3️⃣ Cancel"
-        read -p "Enter 1, 2, or 3: " action
-        case $action in
-          1)
-            read -p "Enter commit message: " msg
-            git add .
-            git commit -m "$msg"
-            ;;
-          2)
-            git stash
-            ;;
-          3)
-            echo "❌ Sync canceled."
-            read -p "Press Enter to return to menu..."
-            continue
-            ;;
-          *)
-            echo "❌ Invalid choice. Canceling."
-            read -p "Press Enter to return to menu..."
-            continue
-            ;;
-        esac
-      fi
-      git config pull.rebase false
-      git pull origin main
-      git push origin main
-      echo "✅ Sync complete!"
-      read -p "Press Enter to return to menu..."
-      ;;
-
-    6)
-      echo "🔁 Syncing with Builder.io..."
-      # Add your Builder.io sync commands here
-      echo "✅ Builder.io sync complete!"
-      read -p "Press Enter to return to menu..."
-      ;;
-
-    *)
-      echo "❌ Invalid option. Try again."
-      sleep 1
-      ;;
-  esac
-done
+  *)
+    echo "❌ Invalid choice. Please enter 1–7."
+    ;;
+esac

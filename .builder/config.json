@@ -1,0 +1,8 @@
+{
+  "name": "Chef",
+  "publicApiKey": "f7688d9de048457aa114920474f60d47",
+  "framework": "react",
+  "entry": "src/index.js",
+  "output": "build",
+  "localDevPort": 77815
+}

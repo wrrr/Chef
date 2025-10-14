@@ -1,12 +1,18 @@
 import React from "react";
 import heroImage from "../assets/images/hero1.jpg";
+import "./Hero.css";
 
 export default function Hero() {
   return (
-    <section className="hero" id="waitlist">
+    <>
+      <section className="hero" id="waitlist">
       <div className="hero-card">
         <span className="tag">From $15 / meal</span>
-        <h2>Restaurant Quality Meals from Local Chefs, Delivered Fresh Daily</h2>
+        <h2 className="hero-title">
+          Restaurant Quality Meals from Local Chefs
+          <br />
+          &nbsp;Delivered Fresh Daily
+        </h2>
         <p className="lead">
           Discover chef‑crafted dishes from home cooks, retired pros, and rising culinary artists in your city.
           Daily rotating menus. One click. Fresh to your door.
@@ -52,13 +58,30 @@ export default function Hero() {
         </form>
       </div>
 
-      <div>
-        <img 
-          src={heroImage} 
-          alt="Delicious meals" 
-          style={{ width: "100%", borderRadius: "18px" }} 
+      <div className="hero-image-wrapper">
+        <img
+          src={heroImage}
+          alt="Delicious meals"
+          className="hero-image"
         />
       </div>
     </section>
+      <button openLinkInNewTab={false} style={{
+        all: "unset",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        marginTop: "20px",
+        appearance: "none",
+        backgroundColor: "black",
+        color: "white",
+        borderRadius: "4px",
+        textAlign: "center",
+        cursor: "pointer",
+        padding: "15px 25px",
+      }}>
+        Click me!
+      </button>
+    </>
   );
 }

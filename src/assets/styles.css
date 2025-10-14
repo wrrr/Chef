@@ -172,6 +172,10 @@ a {
   font-weight: 500; /* optional: slightly lighter than default */
 }
 
+.hero-title {
+  text-align: center;
+}
+
 .tag {
   display: inline-block;
   background: var(--gold);
@@ -190,7 +194,7 @@ h2 {
 
 .lead {
   color: #333;
-  margin: 0 0 16px;
+  margin: 0 0 20px;
 }
 
 .trust {

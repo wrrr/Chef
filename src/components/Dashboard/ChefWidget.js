@@ -1,20 +1,14 @@
 import React from "react";
+import "./Dashboard.css";
 
 export default function ChefWidget() {
-  const chefs = [
-    { id: 1, name: "Chef Mario", active: true },
-    { id: 2, name: "Chef Luigi", active: false },
-  ];
-
   return (
-    <div className="widget chef-widget">
-      <h2>Chefs</h2>
-      <ul>
-        {chefs.map((c) => (
-          <li key={c.id}>
-            {c.name} - {c.active ? "Active" : "Inactive"}
-          </li>
-        ))}
+    <div className="widget">
+      <h2 className="widget-title" style={{ color: '#9B1C18' }}>Chefs</h2>
+
+      <ul className="widget-list">
+        <li>Chef Mario - Active</li>
+        <li>Chef Luigi - Inactive</li>
       </ul>
     </div>
   );
