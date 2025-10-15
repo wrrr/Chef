@@ -1,45 +1,57 @@
-// ===========================
-// Import React & Router
-// ===========================
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import "./Nav.css"; 
+import logo from "../assets/logo.png";
 
-// ===========================
-// Navigation component
-// ===========================
 export default function Nav() {
-  return (
-    <nav className="nav container">
-      {/* Brand / Logo */}
-      <div className="brand">
-        <Link to="/">
-          {/* Logo image */}
-          <img
-            src={require("../assets/logo.png")}
-            alt="Chefs2Table Logo"
-            className="logo"
-          />
-        </Link>
+  const [chefsDropdownOpen, setChefsDropdownOpen] = useState(false);
 
-        {/* Brand text */}
-        <div>
-          <h1>Chefs2Table</h1>
-          <small>Delicious Meals, Exceptional Deals.</small>
+  const toggleChefsDropdown = () => {
+    setChefsDropdownOpen(!chefsDropdownOpen);
+  };
+
+  return (
+    <nav className="site-header">
+      <div className="header-left">
+        <img src={logo} alt="Chefs2Table Logo" className="logo" />
+        <div className="title-container">
+          <h1 className="site-title">Chefs2Table</h1>
+          <p className="tagline">Delicious Meals - Exceptional Deals</p>
         </div>
       </div>
 
-      {/* Menu links */}
-      <div className="links">
-        <Link to="/">Home</Link>
-        <Link to="/chefs">Chefs</Link>
-        <Link to="/about">About</Link>
-        <Link to="/contact">Contact</Link>
+      <ul className="nav-bar nav-list">
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/about">About</Link>
+        </li>
 
-        {/* Dashboard login button */}
-        <Link to="/dashboard" className="btn gold">
-          Login
-        </Link>
-      </div>
+        <li className="nav-dropdown" onMouseEnter={() => setChefsDropdownOpen(true)} onMouseLeave={() => setChefsDropdownOpen(false)}>
+          <button onClick={toggleChefsDropdown}>
+            Chefs ▼
+          </button>
+          {chefsDropdownOpen && (
+            <ul className="dropdown-menu">
+              <li>
+                <Link to="/chefs">Meet Local Chefs</Link>
+                <ul className="submenu">
+                  <li><Link to="/chefs">Toronto</Link></li>
+                  <li><Link to="/chefs">New York</Link></li>
+                  <li><Link to="/chefs">Boston</Link></li>
+                  <li><Link to="/chefs">Chicago</Link></li>
+                  <li><Link to="/chefs">New Orleans</Link></li>
+                </ul>
+              </li>
+            </ul>
+          )}
+        </li>
+
+        <li>
+          <Link to="/dashboard" className="login-button">Dashboard</Link>
+        </li>
+      </ul>
     </nav>
   );
 }

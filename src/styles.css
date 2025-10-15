@@ -20,6 +20,13 @@
   box-sizing: border-box;
 }
 
+/* Global page gutter */
+.page-container {
+  padding-left: 12px;
+  padding-right: 12px;
+  box-sizing: border-box; /* ensures padding doesn’t break layouts */
+}
+
 html, body {
   height: 100%;
   margin: 0;
@@ -54,12 +61,14 @@ a {
   border-bottom: 1px solid #f5e9e3;
   z-index: 1000;
   padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 24px;
 }
 
@@ -67,14 +76,11 @@ a {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 20px;
 }
 
 .logo {
-  display: grid;
-  place-items: center;
-  width: 120px;             /* logo width */
-  height: 120px;            /* logo height */
+  width: 120px;             
+  height: 120px;            
   border-radius: 14px;
 }
 
@@ -92,12 +98,14 @@ a {
   font-size: 1.2rem;
 }
 
+/* Navigation Links */
 .links {
   display: flex;
   gap: 18px;
   align-items: center;
 }
 
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -153,161 +161,57 @@ a {
   border-radius: 18px;
   object-fit: cover;
   max-height: 600px;
+}  
+  
+  
+  .dropdown-menu .submenu {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  left: 50px; /* offset 50px to the right */
+  top: 0;
+  width: 250px;
+  background: rgba(255, 255, 255, 0.7); /* semi-transparent background */
+  list-style: none;  /* remove bullets */
+  margin: 0;
+  padding: 0.5rem 0;
+  border: none;
+  box-shadow: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* ===========================
-   Chef Grid Section
-   =========================== */
-.chef-grid h2 {
-  font-size: 2.5rem;
-  color: var(--red);
-  margin-bottom: 32px;
-  text-align: center;
+.dropdown-menu li:hover > .submenu {
+  opacity: 1;
+  visibility: visible;
 }
 
-.chef-grid-wrapper {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-  align-items: start;
+.dropdown-menu .submenu li {
+  background: none;  /* ensure no background */
+  border: none;      /* ensure no border */
+  box-shadow: none;  /* ensure no shadow */
 }
 
-.chef-card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.dropdown-menu .submenu li a {
+  text-decoration: none;
+  color: #333;
+  display: block;
+  padding: 0.4rem 0;
 }
 
-.chef-card img {
-  width: 100%;
-  height: 250px;
-  object-fit: cover;
+.dropdown-menu .submenu li a:hover {
+  text-decoration: underline;
 }
 
-.chef-card h3 {
-  margin: 16px 0 8px;
-  font-size: 1.4rem;
-  color: var(--red);
+/* Login Button */
+.login-button {
+  background-color: #d4a017; /* mustard yellow */
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
 }
 
-.chef-card p {
-  font-size: 1rem;
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-
-.chef-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 36px rgba(15, 15, 15, 0.15);
-}
-
-/* ===========================
-   Dashboard Section
-   =========================== */
-.dashboard-container {
-  padding: 32px;
-  display: grid;
-  gap: 24px;
-  background: #f9f6f2;
-}
-
-.widgets-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
-}
-
-.widget {
-  background: #fff;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 16px;
-}
-
-.widget h3 {
-  margin: 0 0 12px;
-  font-size: 1.2rem;
-  color: var(--red);
-}
-
-.widget p {
-  font-size: 1rem;
-  color: var(--muted);
-}
-
-/* ===========================
-   Responsive Adjustments
-   =========================== */
-@media (max-width: 1000px) {
-  .hero {
-    grid-template-columns: 1fr;
-    text-align: center;
-    gap: 24px;
-  }
-
-  .logo {
-    width: 100px;
-    height: 100px;
-  }
-
-  .brand h1 {
-    font-size: 28px;
-  }
-
-  .brand small {
-    font-size: 1rem;
-  }
-
-  .hero-card {
-    padding: 28px;
-  }
-
-  .hero-card h2 {
-    font-size: 2.2rem;
-  }
-}
-
-@media (max-width: 720px) {
-  .hero {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 16px 0;
-  }
-
-  .logo {
-    width: 80px;
-    height: 80px;
-  }
-
-  .brand h1 {
-    font-size: 1.8rem;
-  }
-
-  .brand small {
-    font-size: 0.9rem;
-  }
-
-  .hero-card {
-    padding: 16px;
-  }
-
-  .hero-card h2 {
-    font-size: 1.6rem;
-  }
-
-  .hero-card p {
-    font-size: 0.95rem;
-  }
-
-  .widgets-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .chef-grid-wrapper {
-    grid-template-columns: 1fr; /* stack chefs on small screens */
-  }
+.login-button:hover {
+  background-color: #b68a10;
 }

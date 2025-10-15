@@ -1,9 +1,11 @@
 #!/bin/bash
-# ====================================================
-# Chef Project Management Script
-# ====================================================
+# ===========================
+#!/bin/bash
 
-clear
+# =====================================
+# Chef Project Management Script
+# =====================================
+
 echo "====================================="
 echo "1️⃣  Launch Website Preview (Local)"
 echo "2️⃣  Prepare Website for Launch (Build)"
@@ -22,8 +24,12 @@ case $choice in
     ;;
 
   2)
-    echo "🏗️  Building website for deployment..."
+    echo "🛠 Preparing website for launch..."
     npm run build
+    echo ""
+    echo "✅ Build complete. You can serve it locally with:"
+    echo "   npm install -g serve"
+    echo "   serve -s build"
     ;;
 
   3)
@@ -32,34 +38,33 @@ case $choice in
     ;;
 
   4)
-    echo "🧹 Performing deep clean..."
+    echo "🧹 Deep cleaning project..."
     rm -rf node_modules build .cache
-    npm cache clean --force
     npm install
-    echo "✅ Project cleaned and dependencies reinstalled."
+    echo "✅ Deep clean and reinstall complete."
     ;;
 
   5)
-    echo "🔄 Syncing local repository with GitHub..."
+    echo "🔄 Syncing with GitHub..."
     git add .
-    git commit -m "Sync local changes"
-    git pull origin main --rebase
+    git commit -m "Auto-save local changes before sync" 2>/dev/null
+    git pull --rebase origin main
     git push origin main
-    echo "✅ GitHub sync complete!"
+    echo "✅ GitHub sync complete."
     ;;
 
   6)
-    echo "🔗 Syncing with Builder.io..."
-    npx @builder.io/cli pull
-    echo "✅ Builder.io sync complete!"
+    echo "🔄 Syncing with Builder.io..."
+    npx @builder.io/cli sync
+    echo "✅ Builder.io sync complete."
     ;;
 
   7)
-    echo "🎨 Launching Builder.io Editor (Local)..."
+    echo "🚀 Launching Builder.io Editor (Local)..."
     npx "builder.io@latest" launch --serverUrl http://localhost:3000
     ;;
 
   *)
-    echo "❌ Invalid choice. Please enter 1–7."
+    echo "❌ Invalid option"
     ;;
 esac
