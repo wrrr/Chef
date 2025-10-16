@@ -1,10 +1,7 @@
-#!/bin/bash
-# ===========================
-#!/bin/bash
+#!/bin/zsh
 
-# =====================================
-# Chef Project Management Script
-# =====================================
+# Chef deployment script
+# Usage: ./chef
 
 echo "====================================="
 echo "1️⃣  Launch Website Preview (Local)"
@@ -15,56 +12,39 @@ echo "5️⃣  Sync Local Repository with GitHub"
 echo "6️⃣  Sync with Builder.io"
 echo "7️⃣  Launch Builder.io Editor (Local)"
 echo "====================================="
-read -p "Enter 1, 2, 3, 4, 5, 6, or 7: " choice
+echo "Enter 1, 2, 3, 4, 5, 6, or 7: "
+read option
 
-case $choice in
+case $option in
   1)
-    echo "🚀 Launching local preview on http://localhost:3000 ..."
     npm start
     ;;
-
   2)
-    echo "🛠 Preparing website for launch..."
     npm run build
-    echo ""
-    echo "✅ Build complete. You can serve it locally with:"
-    echo "   npm install -g serve"
-    echo "   serve -s build"
     ;;
-
   3)
-    echo "🌐 Publishing to Cloudflare Pages..."
-    npm run deploy
+    ./chefdeploy
     ;;
-
   4)
-    echo "🧹 Deep cleaning project..."
-    rm -rf node_modules build .cache
-    npm install
-    echo "✅ Deep clean and reinstall complete."
+    rm -rf build node_modules/.cache
     ;;
-
   5)
-    echo "🔄 Syncing with GitHub..."
+    git status
+    git rm -r --cached backups 2>/dev/null
+    git rm -r --cached node_modules/.cache 2>/dev/null
     git add .
-    git commit -m "Auto-save local changes before sync" 2>/dev/null
-    git pull --rebase origin main
-    git push origin main
-    echo "✅ GitHub sync complete."
+    git commit -m "Sync with GitHub"
+    git push
     ;;
-
   6)
-    echo "🔄 Syncing with Builder.io..."
-    npx @builder.io/cli sync
-    echo "✅ Builder.io sync complete."
+    echo "Syncing with Builder.io..."
+    # add your Builder.io sync commands here
     ;;
-
   7)
-    echo "🚀 Launching Builder.io Editor (Local)..."
-    npx "builder.io@latest" launch --serverUrl http://localhost:3000
+    echo "Launching Builder.io Editor..."
+    # add your Builder.io editor launch commands here
     ;;
-
   *)
-    echo "❌ Invalid option"
+    echo "Invalid option"
     ;;
 esac
