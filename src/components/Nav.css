@@ -59,28 +59,43 @@
   align-items: center;
 }
 
-/* ===== Dropdowns ===== */
+/* ===== Top-level dropdown ===== */
 .nav-dropdown {
   position: relative;
+}
+
+/* Remove button styling */
+.nav-dropdown > button {
+  background: none;
+  border: none;
+  font: inherit;
+  color: #333;
+  padding: 0;
   cursor: pointer;
 }
 
+/* ===== Dropdown Menu ===== */
 .nav-dropdown > .dropdown-menu {
   display: none;
   position: absolute;
   top: 100%;
   left: 0;
-  background: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.95);
   list-style: none;
-  padding: 0.5rem 0;
   margin: 0;
+  padding: 0.5rem 0;
   border: none;
-  min-width: 200px;
+  min-width: 220px; /* wide enough for city names */
   z-index: 100;
 }
 
 .nav-dropdown:hover > .dropdown-menu {
   display: block;
+}
+
+/* First-level submenu links */
+.dropdown-menu li {
+  position: relative;
 }
 
 .dropdown-menu li a {
@@ -98,13 +113,14 @@
 .dropdown-menu .submenu {
   display: none;
   position: absolute;
-  top: 0;
-  left: 200px; /* adjusted position */
-  background: rgba(255,255,255,0.9);
+  top: 0; /* align with parent li */
+  left: 100%; /* directly to the right of parent li, not floating far away */
+  min-width: 220px; /* ensure all cities fit in one line */
+  background: rgba(255,255,255,0.95);
   list-style: none;
-  padding: 0.5rem 0;
   margin: 0;
-  min-width: 240px; /* widened to fit long city names */
+  padding: 0.5rem 0;
+  border: none;
 }
 
 .dropdown-menu li:hover > .submenu {
@@ -112,23 +128,7 @@
 }
 
 .dropdown-menu .submenu li a {
-  display: block;
   padding: 0.4rem 1rem;
-  color: #333;
-  text-decoration: none;
-}
-
-.dropdown-menu .submenu li a:hover {
-  text-decoration: underline;
-}
-
-/* ===== Hamburger (mobile) ===== */
-.hamburger {
-  display: none;
-  font-size: 1.8rem;
-  background: none;
-  border: none;
-  cursor: pointer;
 }
 
 /* ===== Login Button ===== */
@@ -147,16 +147,12 @@
 
 /* ===== Responsive ===== */
 @media (max-width: 720px) {
-  .hamburger {
-    display: block;
-  }
-
   .nav-bar {
+    flex-direction: column;
     position: absolute;
     top: 100%;
     right: 0;
     background: #fff;
-    flex-direction: column;
     width: 200px;
     display: none;
   }
@@ -175,6 +171,5 @@
     position: relative;
     left: 0;
     width: 100%;
-    min-width: auto; /* reset for mobile */
   }
 }

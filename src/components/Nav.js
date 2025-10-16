@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import "./Nav.css"; // ✅ Correct relative path
 import logo from "../assets/logo.png"; // ✅ Correct logo path
 
 export default function Nav() {
+  const [chefsOpen, setChefsOpen] = useState(false);
+  const [citiesOpen, setCitiesOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+
   return (
     <header className="site-header">
       <div className="header-left">
@@ -18,12 +22,20 @@ export default function Nav() {
         <ul className="nav-list">
           <li><Link to="/">Home</Link></li>
 
-          <li className="nav-dropdown">
-            <a href="#">Chefs</a>
-            <ul className="dropdown-menu">
-              <li>
+          {/* Chefs dropdown */}
+          <li
+            className="nav-dropdown"
+            onMouseEnter={() => setChefsOpen(true)}
+            onMouseLeave={() => { setChefsOpen(false); setCitiesOpen(false); }}
+          >
+            <button aria-haspopup="true" aria-expanded={chefsOpen}>Chefs</button>
+            <ul className="dropdown-menu" style={{ display: chefsOpen ? "block" : "none" }}>
+              <li
+                onMouseEnter={() => setCitiesOpen(true)}
+                onMouseLeave={() => setCitiesOpen(false)}
+              >
                 <Link to="/chefs">Meet Local Chefs</Link>
-                <ul className="submenu">
+                <ul className="submenu" style={{ display: citiesOpen ? "block" : "none" }}>
                   <li><Link to="/chefs">Toronto</Link></li>
                   <li><Link to="/chefs">New York</Link></li>
                   <li><Link to="/chefs">Boston</Link></li>
@@ -34,9 +46,14 @@ export default function Nav() {
             </ul>
           </li>
 
-          <li className="nav-dropdown">
+          {/* Contact dropdown */}
+          <li
+            className="nav-dropdown"
+            onMouseEnter={() => setContactOpen(true)}
+            onMouseLeave={() => setContactOpen(false)}
+          >
             <Link to="/contact">Contact</Link>
-            <ul className="dropdown-menu">
+            <ul className="dropdown-menu" style={{ display: contactOpen ? "block" : "none" }}>
               <li><Link to="/join-team">Join Our Team</Link></li>
             </ul>
           </li>

@@ -1,69 +1,66 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "./Nav.css";
-import logo from "../assets/logo.png";
+import "./Nav.css"; // ✅ Correct relative path
+import logo from "../assets/logo.png"; // ✅ Correct logo path
 
 export default function Nav() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+  const [chefsOpen, setChefsOpen] = useState(false);
+  const [citiesOpen, setCitiesOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   return (
     <header className="site-header">
-      {/* Left side: logo + title + tagline */}
       <div className="header-left">
-        <img src={logo} alt="Chefs2Table Logo" className="logo" />
+        <img src={logo} alt="Chefs2Table logo" className="logo" />
         <div className="title-container">
           <h1 className="site-title">Chefs2Table</h1>
           <p className="tagline">Delicious Meals - Exceptional Deals</p>
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="nav-bar">
+      <nav className="nav-bar" aria-label="Main navigation">
         <ul className="nav-list">
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li className="nav-dropdown">
-            <button>Chefs</button>
-            <ul className="dropdown-menu">
-              <li>
-                <Link to="/chefs">Meet Our Chefs</Link>
-                <ul className="submenu">
-                  <li>
-                    <Link to="/chefs">Toronto</Link>
-                  </li>
-                  <li>
-                    <Link to="/chefs">New York</Link>
-                  </li>
-                  <li>
-                    <Link to="/chefs">Boston</Link>
-                  </li>
-                  <li>
-                    <Link to="/chefs">Chicago</Link>
-                  </li>
-                  <li>
-                    <Link to="/chefs">New Orleans</Link>
-                  </li>
+          <li><Link to="/">Home</Link></li>
+
+          {/* Chefs dropdown */}
+          <li
+            className="nav-dropdown"
+            onMouseEnter={() => setChefsOpen(true)}
+            onMouseLeave={() => { setChefsOpen(false); setCitiesOpen(false); }}
+          >
+            <button aria-haspopup="true" aria-expanded={chefsOpen}>Chefs</button>
+            <ul className="dropdown-menu" style={{ display: chefsOpen ? "block" : "none" }}>
+              <li
+                onMouseEnter={() => setCitiesOpen(true)}
+                onMouseLeave={() => setCitiesOpen(false)}
+              >
+                <Link to="/chefs">Meet Local Chefs</Link>
+                <ul className="submenu" style={{ display: citiesOpen ? "block" : "none" }}>
+                  <li><Link to="/chefs">Toronto</Link></li>
+                  <li><Link to="/chefs">New York</Link></li>
+                  <li><Link to="/chefs">Boston</Link></li>
+                  <li><Link to="/chefs">Chicago</Link></li>
+                  <li><Link to="/chefs">New Orleans</Link></li>
                 </ul>
               </li>
             </ul>
           </li>
 
-          {/* Contact page */}
-          <li>
+          {/* Contact dropdown */}
+          <li
+            className="nav-dropdown"
+            onMouseEnter={() => setContactOpen(true)}
+            onMouseLeave={() => setContactOpen(false)}
+          >
             <Link to="/contact">Contact</Link>
+            <ul className="dropdown-menu" style={{ display: contactOpen ? "block" : "none" }}>
+              <li><Link to="/join-team">Join Our Team</Link></li>
+            </ul>
           </li>
 
-          <li>
-            <Link to="/dashboard" className="login-button">Dashboard</Link>
-          </li>
+          <li><Link to="/about">About</Link></li>
+          <li><Link to="/dashboard">Dashboard</Link></li>
+          <li><Link to="/login" className="login-button">Login</Link></li>
         </ul>
       </nav>
     </header>

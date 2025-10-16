@@ -2,13 +2,16 @@
 .site-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   padding: 1rem 2rem;
   background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* ===== Left side: logo + title + tagline ===== */
+/* Header left: logo + title */
 .header-left {
   display: flex;
   align-items: center;
@@ -30,23 +33,21 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #9b1c18; /* Theme red color */
+  color: #9b1c18;
 }
 
 .tagline {
-  margin-top: 0.2rem; /* slight spacing below title */
-  font-size: 0.95rem; /* slightly larger for readability */
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
   font-weight: bold;
   color: #666;
-  white-space: nowrap; /* keep on one line */
+  white-space: nowrap;
 }
 
 /* ===== Navigation ===== */
 .nav-bar {
   display: flex;
   align-items: flex-end;
-  justify-content: flex-end;
-  width: 100%;
 }
 
 .nav-list {
@@ -54,7 +55,7 @@
   list-style: none;
   gap: 2rem;
   margin: 0;
-  padding: 0 80px 0 0; /* right-aligned with 80px padding */
+  padding: 0;
   align-items: center;
 }
 
@@ -63,99 +64,77 @@
   position: relative;
 }
 
-/* Top-level dropdown button */
+/* Remove button styling */
 .nav-dropdown > button {
   background: none;
   border: none;
   font: inherit;
-  cursor: pointer;
   color: #333;
-  font-size: 1rem;
   padding: 0;
+  cursor: pointer;
 }
 
-/* Top-level dropdown menu */
+/* ===== Dropdown Menu ===== */
 .nav-dropdown > .dropdown-menu {
-  opacity: 0;
-  visibility: hidden;
+  display: none;
   position: absolute;
   top: 100%;
   left: 0;
-  width: 250px;
-  margin: 0;
-  padding: 0;
+  background: rgba(255,255,255,0.95);
   list-style: none;
+  margin: 0;
+  padding: 0.5rem 0;
+  border: none;
+  min-width: 220px; /* wide enough for city names */
   z-index: 100;
-  background: none;   /* remove background */
-  border: none;       /* remove border */
-  box-shadow: none;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Show top-level dropdown on hover */
 .nav-dropdown:hover > .dropdown-menu {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* First-level submenu items (Meet Local Chefs) */
-.nav-dropdown > .dropdown-menu li {
-  background: none;   /* remove background */
-  border: none;       /* remove border */
-  box-shadow: none;   /* remove any shadow */
-}
-
-.nav-dropdown > .dropdown-menu li a {
-  text-decoration: none;
-  color: #333;
   display: block;
-  padding: 0.4rem 0;
 }
 
-.nav-dropdown > .dropdown-menu li a:hover {
+/* First-level submenu links */
+.dropdown-menu li {
+  position: relative;
+}
+
+.dropdown-menu li a {
+  display: block;
+  padding: 0.4rem 1rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.dropdown-menu li a:hover {
   text-decoration: underline;
 }
 
 /* ===== Second-level (cities) dropdown ===== */
 .dropdown-menu .submenu {
-  opacity: 0;
-  visibility: hidden;
+  display: none;
   position: absolute;
-  left: 50px;       /* offset 50px to the right */
-  top: 100%;        /* align below parent li */
-  width: 250px;
-  background: rgba(255, 255, 255, 0.7); /* semi-transparent background */
-  list-style: none; /* remove bullets */
+  top: 0; /* align with parent li */
+  left: 100%; /* directly to the right of parent li, not floating far away */
+  min-width: 220px; /* ensure all cities fit in one line */
+  background: rgba(255,255,255,0.95);
+  list-style: none;
   margin: 0;
   padding: 0.5rem 0;
   border: none;
-  box-shadow: none;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-
-  /* NEW FIX: push down first item */
-  padding-top: 1rem; /* adds full line space above first city */
 }
 
 .dropdown-menu li:hover > .submenu {
-  opacity: 1;
-  visibility: visible;
+  display: block;
 }
 
 .dropdown-menu .submenu li a {
-  text-decoration: none;
-  color: #333;
-  display: block;
-  padding: 0.4rem 0;
-}
-
-.dropdown-menu .submenu li a:hover {
-  text-decoration: underline;
+  padding: 0.4rem 1rem;
 }
 
 /* ===== Login Button ===== */
 .login-button {
-  background-color: #d4a017; /* mustard yellow */
-  color: white;
+  background-color: #d4a017;
+  color: #fff;
   padding: 0.5rem 1rem;
   border-radius: 8px;
   text-decoration: none;
@@ -164,4 +143,33 @@
 
 .login-button:hover {
   background-color: #b68a10;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 720px) {
+  .nav-bar {
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    width: 200px;
+    display: none;
+  }
+
+  .nav-bar.open {
+    display: flex;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .nav-dropdown > .dropdown-menu,
+  .dropdown-menu .submenu {
+    position: relative;
+    left: 0;
+    width: 100%;
+  }
 }
