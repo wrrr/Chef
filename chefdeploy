@@ -5,7 +5,7 @@
 # =========================================================
 
 # Navigate to project directory
-cd ~/Library/Mobile\ Documents/com~apple~CloudDocs/GitHub/chefs2table-prod || {
+cd ~/Chef || {
     echo "❌ Failed to navigate to project directory"
     exit 1
 }
