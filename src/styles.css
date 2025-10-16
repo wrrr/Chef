@@ -14,6 +14,13 @@
 }
 
 /* ===========================
+   Force vertical scrollbar to prevent menu shift
+   =========================== */
+html {
+  overflow-y: scroll;
+}
+
+/* ===========================
    Reset & Base Styles
    =========================== */
 * {
