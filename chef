@@ -1,8 +1,5 @@
 #!/bin/zsh
 
-# Chef deployment script
-# Usage: ./chef
-
 echo "====================================="
 echo "1️⃣  Launch Website Preview (Local)"
 echo "2️⃣  Prepare Website for Launch (Build)"
@@ -29,22 +26,26 @@ case $option in
     rm -rf build node_modules/.cache
     ;;
   5)
-    git status
-    git rm -r --cached backups 2>/dev/null
-    git rm -r --cached node_modules/.cache 2>/dev/null
+    echo "Syncing with GitHub..."
+    git fetch origin
+
+    [ -d backups ] && git rm -r --cached backups
+    [ -d node_modules/.cache ] && git rm -r --cached node_modules/.cache
+
     git add .
-    git commit -m "Sync with GitHub"
-    git push
+    git commit -m "Sync with GitHub" || echo "No changes to commit"
+
+    current_branch=$(git rev-parse --abbrev-ref HEAD)
+    git push origin "$current_branch"
     ;;
   6)
     echo "Syncing with Builder.io..."
-    # add your Builder.io sync commands here
+    # Insert Builder.io sync commands here
     ;;
   7)
     echo "Launching Builder.io Editor..."
-    # add your Builder.io editor launch commands here
     ;;
   *)
-    echo "Invalid option"
+    echo "Invalid option. Please enter 1-7."
     ;;
 esac
