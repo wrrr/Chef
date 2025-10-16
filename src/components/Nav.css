@@ -2,7 +2,7 @@
 .site-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   padding: 1rem 2rem;
   background-color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -44,9 +44,10 @@
 /* ===== Navigation ===== */
 .nav-bar {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: flex-end;
-  width: 100%;
+  width: auto;
+  flex: 0 0 auto;
 }
 
 .nav-list {
@@ -54,8 +55,14 @@
   list-style: none;
   gap: 2rem;
   margin: 0;
-  padding: 0 80px 0 0; /* right-aligned with 80px padding */
+  padding: 0;
   align-items: center;
+}
+
+@media (max-width: 768px) {
+  .site-header { padding: 0.75rem 1rem; }
+  .nav-list { gap: 1rem; }
+  .tagline { display: none; }
 }
 
 /* ===== Top-level dropdown ===== */
