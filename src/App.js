@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Components
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
+import GA from "./GA"; // 👈 new GA component
 
 // Pages
 import Home from "./pages/Home";
@@ -12,67 +12,34 @@ import AboutPage from "./pages/AboutPage";
 import MeetLocalChefs from "./pages/MeetLocalChefs";
 import JoinOurTeam from "./pages/JoinOurTeam";
 import Dashboard from "./components/Dashboard/Dashboard";
+import Contact from "./pages/Contact";
 
 // Global styles
 import "./styles.css";
 
-// Favicon import
-import favicon from "./assets/favicon.png";
-
-// SPA Google Analytics listener
-function GAListener() {
-  const location = useLocation();
-
-  useEffect(() => {
-    if (window.gtag) {
-      window.gtag("config", "G-TF32R5B1DF", {
-        page_path: location.pathname,
-      });
-    }
-  }, [location]);
-
-  return null;
-}
-
 export default function App() {
   return (
-    <>
-      <Helmet>
-        <link rel="icon" type="image/png" href={favicon} />
+    <Router>
+      {/* Google Analytics tracking */}
+      <GA />
 
-        {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-TF32R5B1DF"></script>
-        <script>
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-TF32R5B1DF');
-          `}
-        </script>
-      </Helmet>
+      {/* Navigation bar visible on all routes */}
+      <Nav />
 
-      <Router>
-        {/* Tracks SPA pageviews */}
-        <GAListener />
+      {/* Main page container with horizontal gutter */}
+      <div className="page-container">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/chefs" element={<MeetLocalChefs />} />
+          <Route path="/join-team" element={<JoinOurTeam />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/contact" element={<Contact />} />
+        </Routes>
+      </div>
 
-        {/* Navigation bar */}
-        <Nav />
-
-        {/* Main content container */}
-        <div className="page-container">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/chefs" element={<MeetLocalChefs />} />
-            <Route path="/join-team" element={<JoinOurTeam />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-          </Routes>
-        </div>
-
-        {/* Footer */}
-        <Footer />
-      </Router>
-    </>
+      {/* Footer visible on all routes */}
+      <Footer />
+    </Router>
   );
 }

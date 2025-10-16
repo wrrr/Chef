@@ -1,13 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import "./Nav.css"; // ✅ Correct relative path
 import logo from "../assets/logo.png"; // ✅ Correct logo path
 
 export default function Nav() {
-  const [chefsOpen, setChefsOpen] = useState(false);
-
-  const toggleChefs = () => setChefsOpen((prev) => !prev);
-
   return (
     <header className="site-header">
       <div className="header-left">
@@ -22,29 +18,26 @@ export default function Nav() {
         <ul className="nav-list">
           <li><Link to="/">Home</Link></li>
 
-          <li
-            className={`nav-dropdown ${chefsOpen ? "open" : ""}`}
-            onMouseLeave={() => setChefsOpen(false)}
-          >
-            <button onClick={toggleChefs} aria-haspopup="true" aria-expanded={chefsOpen}>
-              Chefs
-            </button>
-
-            <ul
-              className="dropdown-menu"
-              style={{ display: chefsOpen ? "block" : "none" }}
-            >
+          <li className="nav-dropdown">
+            <a href="#">Chefs</a>
+            <ul className="dropdown-menu">
               <li>
-                <Link to="/chefs" onClick={() => setChefsOpen(false)}>Meet Local Chefs</Link>
+                <Link to="/chefs">Meet Local Chefs</Link>
                 <ul className="submenu">
-                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>Toronto</Link></li>
-                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>New York</Link></li>
-                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>Boston</Link></li>
-                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>Chicago</Link></li>
-                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>New Orleans</Link></li>
+                  <li><Link to="/chefs">Toronto</Link></li>
+                  <li><Link to="/chefs">New York</Link></li>
+                  <li><Link to="/chefs">Boston</Link></li>
+                  <li><Link to="/chefs">Chicago</Link></li>
+                  <li><Link to="/chefs">New Orleans</Link></li>
                 </ul>
               </li>
-              <li><Link to="/join-team" onClick={() => setChefsOpen(false)}>Join Our Team</Link></li>
+            </ul>
+          </li>
+
+          <li className="nav-dropdown">
+            <Link to="/contact">Contact</Link>
+            <ul className="dropdown-menu">
+              <li><Link to="/join-team">Join Our Team</Link></li>
             </ul>
           </li>
 
