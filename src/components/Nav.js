@@ -1,57 +1,58 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "./Nav.css"; 
-import logo from "../assets/logo.png";
+import "./Nav.css"; // ✅ Correct relative path
+import logo from "../assets/logo.png"; // ✅ Correct logo path
 
 export default function Nav() {
-  const [chefsDropdownOpen, setChefsDropdownOpen] = useState(false);
+  const [chefsOpen, setChefsOpen] = useState(false);
 
-  const toggleChefsDropdown = () => {
-    setChefsDropdownOpen(!chefsDropdownOpen);
-  };
+  const toggleChefs = () => setChefsOpen((prev) => !prev);
 
   return (
-    <nav className="site-header">
+    <header className="site-header">
       <div className="header-left">
-        <img src={logo} alt="Chefs2Table Logo" className="logo" />
+        <img src={logo} alt="Chefs2Table logo" className="logo" />
         <div className="title-container">
           <h1 className="site-title">Chefs2Table</h1>
           <p className="tagline">Delicious Meals - Exceptional Deals</p>
         </div>
       </div>
 
-      <ul className="nav-bar nav-list">
-        <li>
-          <Link to="/">Home</Link>
-        </li>
-        <li>
-          <Link to="/about">About</Link>
-        </li>
+      <nav className="nav-bar" aria-label="Main navigation">
+        <ul className="nav-list">
+          <li><Link to="/">Home</Link></li>
 
-        <li className="nav-dropdown" onMouseEnter={() => setChefsDropdownOpen(true)} onMouseLeave={() => setChefsDropdownOpen(false)}>
-          <button onClick={toggleChefsDropdown}>
-            Chefs ▼
-          </button>
-          {chefsDropdownOpen && (
-            <ul className="dropdown-menu">
+          <li
+            className={`nav-dropdown ${chefsOpen ? "open" : ""}`}
+            onMouseLeave={() => setChefsOpen(false)}
+          >
+            <button onClick={toggleChefs} aria-haspopup="true" aria-expanded={chefsOpen}>
+              Chefs
+            </button>
+
+            <ul
+              className="dropdown-menu"
+              style={{ display: chefsOpen ? "block" : "none" }}
+            >
               <li>
-                <Link to="/chefs">Meet Local Chefs</Link>
+                <Link to="/chefs" onClick={() => setChefsOpen(false)}>Meet Local Chefs</Link>
                 <ul className="submenu">
-                  <li><Link to="/chefs">Toronto</Link></li>
-                  <li><Link to="/chefs">New York</Link></li>
-                  <li><Link to="/chefs">Boston</Link></li>
-                  <li><Link to="/chefs">Chicago</Link></li>
-                  <li><Link to="/chefs">New Orleans</Link></li>
+                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>Toronto</Link></li>
+                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>New York</Link></li>
+                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>Boston</Link></li>
+                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>Chicago</Link></li>
+                  <li><Link to="/chefs" onClick={() => setChefsOpen(false)}>New Orleans</Link></li>
                 </ul>
               </li>
+              <li><Link to="/join-team" onClick={() => setChefsOpen(false)}>Join Our Team</Link></li>
             </ul>
-          )}
-        </li>
+          </li>
 
-        <li>
-          <Link to="/dashboard" className="login-button">Dashboard</Link>
-        </li>
-      </ul>
-    </nav>
+          <li><Link to="/about">About</Link></li>
+          <li><Link to="/dashboard">Dashboard</Link></li>
+          <li><Link to="/login" className="login-button">Login</Link></li>
+        </ul>
+      </nav>
+    </header>
   );
 }

@@ -1,17 +1,7 @@
-/* ===== Site Header Layout ===== */
-.site-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1rem 2rem;
-  background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
 /* ===== Left side: logo + title + tagline ===== */
 .header-left {
   display: flex;
-  align-items: center;
+  align-items: center; /* vertically center logo + title-container */
   gap: 1rem;
 }
 
@@ -23,7 +13,7 @@
 .title-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center; /* vertically center title + tagline with logo */
 }
 
 .site-title {
@@ -34,124 +24,102 @@
 }
 
 .tagline {
-  margin-top: 0.2rem; /* slight spacing below title */
-  font-size: 0.95rem; /* slightly larger for readability */
+  margin: 0; /* remove top margin so it’s closer to title */
+  font-size: 0.95rem;
   font-weight: bold;
   color: #666;
-  white-space: nowrap; /* keep on one line */
+  white-space: nowrap;
 }
 
-/* ===== Navigation ===== */
 .nav-bar {
   display: flex;
-  align-items: flex-end;
   justify-content: flex-end;
+  align-items: center;
   width: 100%;
 }
 
 .nav-list {
   display: flex;
-  list-style: none;
   gap: 2rem;
   margin: 0;
-  padding: 0 80px 0 0; /* right-aligned with 80px padding */
+  padding: 0 80px 0 0;
+  list-style: none;
   align-items: center;
 }
 
-/* ===== Top-level dropdown ===== */
 .nav-dropdown {
   position: relative;
 }
 
-/* Top-level dropdown button */
 .nav-dropdown > button {
   background: none;
   border: none;
-  font: inherit;
   cursor: pointer;
+  font: inherit;
   color: #333;
   font-size: 1rem;
   padding: 0;
 }
 
-/* Top-level dropdown menu */
-.nav-dropdown > .dropdown-menu {
-  opacity: 0;
-  visibility: hidden;
+.dropdown-menu {
+  display: none;
   position: absolute;
   top: 100%;
   left: 0;
   width: 250px;
+  list-style: none;
   margin: 0;
   padding: 0;
-  list-style: none;
+  background: none;
+  border: none;
   z-index: 100;
-  background: none;   /* remove background */
-  border: none;       /* remove border */
-  box-shadow: none;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Show top-level dropdown on hover */
 .nav-dropdown:hover > .dropdown-menu {
-  opacity: 1;
-  visibility: visible;
+  display: block;
 }
 
-/* First-level submenu items (Meet Local Chefs) */
-.nav-dropdown > .dropdown-menu li {
-  background: none;   /* remove background */
-  border: none;       /* remove border */
-  box-shadow: none;   /* remove any shadow */
-}
-
-.nav-dropdown > .dropdown-menu li a {
-  text-decoration: none;
-  color: #333;
+.dropdown-menu li a {
   display: block;
   padding: 0.4rem 0;
+  text-decoration: none;
+  color: #333;
 }
 
-.nav-dropdown > .dropdown-menu li a:hover {
+.dropdown-menu li a:hover {
   text-decoration: underline;
 }
 
-/* ===== Second-level (cities) dropdown ===== */
-.dropdown-menu .submenu {
-  opacity: 0;
-  visibility: hidden;
+.submenu {
+  display: none;
   position: absolute;
-  left: 50px; /* offset 50px to the right */
+  left: 50px;
   top: 0;
   width: 250px;
   background: rgba(255, 255, 255, 0.7); /* semi-transparent background */
   list-style: none;
-  margin: 0;
   padding: 0.5rem 0;
-  border: none;
-  box-shadow: none;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  margin: 0;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4); /* subtle white shadow */
+  border-radius: 4px;
 }
 
 .dropdown-menu li:hover > .submenu {
-  opacity: 1;
-  visibility: visible;
+  display: block;
 }
 
-.dropdown-menu .submenu li a {
+.submenu li a {
+  padding: 0.4rem 0;
   text-decoration: none;
   color: #333;
-  display: block;
-  padding: 0.4rem 0;
 }
 
-.dropdown-menu .submenu li a:hover {
+.submenu li a:hover {
   text-decoration: underline;
 }
 
-/* ===== Login Button ===== */
 .login-button {
-  background-color: #d4a017; /* mustard yellow */
+  background-color: #d4a017;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 8px;

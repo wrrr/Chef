@@ -2,10 +2,10 @@
 .site-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 1rem 2rem;
   background-color: #fff;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 /* ===== Left side: logo + title + tagline ===== */
@@ -30,15 +30,15 @@
   margin: 0;
   font-size: 1.5rem;
   font-weight: bold;
-  color: #9b1c18;
+  color: #9b1c18; /* Theme red color */
 }
 
 .tagline {
-  margin-top: 0.2rem;
-  font-size: 0.95rem;
+  margin-top: 0.2rem; /* slight spacing below title */
+  font-size: 0.95rem; /* slightly larger for readability */
   font-weight: bold;
   color: #666;
-  white-space: nowrap;
+  white-space: nowrap; /* keep on one line */
 }
 
 /* ===== Navigation ===== */
@@ -46,6 +46,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
+  width: 100%;
 }
 
 .nav-list {
@@ -53,11 +54,11 @@
   list-style: none;
   gap: 2rem;
   margin: 0;
-  padding: 0 80px 0 0;
+  padding: 0 80px 0 0; /* right-aligned with 80px padding */
   align-items: center;
 }
 
-/* ===== Dropdown ===== */
+/* ===== Top-level dropdown ===== */
 .nav-dropdown {
   position: relative;
 }
@@ -85,8 +86,8 @@
   padding: 0;
   list-style: none;
   z-index: 100;
-  background: none;
-  border: none;
+  background: none;   /* remove background */
+  border: none;       /* remove border */
   box-shadow: none;
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
@@ -97,11 +98,11 @@
   visibility: visible;
 }
 
-/* First-level submenu items */
+/* First-level submenu items (Meet Local Chefs) */
 .nav-dropdown > .dropdown-menu li {
-  background: none;
-  border: none;
-  box-shadow: none;
+  background: none;   /* remove background */
+  border: none;       /* remove border */
+  box-shadow: none;   /* remove any shadow */
 }
 
 .nav-dropdown > .dropdown-menu li a {
@@ -120,16 +121,19 @@
   opacity: 0;
   visibility: hidden;
   position: absolute;
-  left: 50px;
-  top: 0;
+  left: 50px;       /* offset 50px to the right */
+  top: 100%;        /* align below parent li */
   width: 250px;
-  background: rgba(255,255,255,0.7);
-  list-style: none;
+  background: rgba(255, 255, 255, 0.7); /* semi-transparent background */
+  list-style: none; /* remove bullets */
   margin: 0;
   padding: 0.5rem 0;
   border: none;
   box-shadow: none;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  /* NEW FIX: push down first item */
+  padding-top: 1rem; /* adds full line space above first city */
 }
 
 .dropdown-menu li:hover > .submenu {
@@ -150,7 +154,7 @@
 
 /* ===== Login Button ===== */
 .login-button {
-  background-color: #d4a017;
+  background-color: #d4a017; /* mustard yellow */
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 8px;

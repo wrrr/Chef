@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import './Nav.css';
-import logo from '../assets/logo.png';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import "./Nav.css";
+import logo from "../assets/logo.png";
 
 export default function Nav() {
-  const [chefsDropdownOpen, setChefsDropdownOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const toggleChefsDropdown = () => {
-    setChefsDropdownOpen(!chefsDropdownOpen);
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
   };
 
   return (
     <header className="site-header">
+      {/* Left side: logo + title + tagline */}
       <div className="header-left">
         <img src={logo} alt="Chefs2Table Logo" className="logo" />
         <div className="title-container">
@@ -20,27 +21,49 @@ export default function Nav() {
         </div>
       </div>
 
+      {/* Navigation */}
       <nav className="nav-bar">
         <ul className="nav-list">
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/about">About</Link>
+          </li>
           <li className="nav-dropdown">
-            <button onClick={toggleChefsDropdown}>Chefs ▼</button>
+            <button>Chefs</button>
             <ul className="dropdown-menu">
               <li>
-                <Link to="/chefs">Meet Local Chefs</Link>
+                <Link to="/chefs">Meet Our Chefs</Link>
                 <ul className="submenu">
-                  <li><Link to="/chefs">Toronto</Link></li>
-                  <li><Link to="/chefs">New York</Link></li>
-                  <li><Link to="/chefs">Boston</Link></li>
-                  <li><Link to="/chefs">Chicago</Link></li>
-                  <li><Link to="/chefs">New Orleans</Link></li>
+                  <li>
+                    <Link to="/chefs">Toronto</Link>
+                  </li>
+                  <li>
+                    <Link to="/chefs">New York</Link>
+                  </li>
+                  <li>
+                    <Link to="/chefs">Boston</Link>
+                  </li>
+                  <li>
+                    <Link to="/chefs">Chicago</Link>
+                  </li>
+                  <li>
+                    <Link to="/chefs">New Orleans</Link>
+                  </li>
                 </ul>
-              </li>
-              <li>
-                <Link to="/join-team">Join Our Team</Link>
               </li>
             </ul>
           </li>
-          <li><Link to="/dashboard" className="login-button">Dashboard</Link></li>
+
+          {/* Contact page */}
+          <li>
+            <Link to="/contact">Contact</Link>
+          </li>
+
+          <li>
+            <Link to="/dashboard" className="login-button">Dashboard</Link>
+          </li>
         </ul>
       </nav>
     </header>
