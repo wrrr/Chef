@@ -1,0 +1,175 @@
+/* ===== Site Header Layout ===== */
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Header left: logo + title */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+}
+
+.title-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.site-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #9b1c18;
+}
+
+.tagline {
+  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #666;
+  white-space: nowrap;
+}
+
+/* ===== Navigation ===== */
+.nav-bar {
+  display: flex;
+  align-items: flex-end;
+}
+
+.nav-list {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+/* ===== Top-level dropdown ===== */
+.nav-dropdown {
+  position: relative;
+}
+
+/* Remove button styling */
+.nav-dropdown > button {
+  background: none;
+  border: none;
+  font: inherit;
+  color: #333;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* ===== Dropdown Menu ===== */
+.nav-dropdown > .dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: rgba(255,255,255,0.95);
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0;
+  border: none;
+  min-width: 220px; /* wide enough for city names */
+  z-index: 100;
+}
+
+.nav-dropdown:hover > .dropdown-menu {
+  display: block;
+}
+
+/* First-level submenu links */
+.dropdown-menu li {
+  position: relative;
+}
+
+.dropdown-menu li a {
+  display: block;
+  padding: 0.4rem 1rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.dropdown-menu li a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Second-level (cities) dropdown ===== */
+.dropdown-menu .submenu {
+  display: none;
+  position: absolute;
+  top: 0; /* align with parent li */
+  left: 100%; /* directly to the right of parent li, not floating far away */
+  min-width: 220px; /* ensure all cities fit in one line */
+  background: rgba(255,255,255,0.95);
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0;
+  border: none;
+}
+
+.dropdown-menu li:hover > .submenu {
+  display: block;
+}
+
+.dropdown-menu .submenu li a {
+  padding: 0.4rem 1rem;
+}
+
+/* ===== Login Button ===== */
+.login-button {
+  background-color: #d4a017;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #b68a10;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 720px) {
+  .nav-bar {
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    width: 200px;
+    display: none;
+  }
+
+  .nav-bar.open {
+    display: flex;
+  }
+
+  .nav-list {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .nav-dropdown > .dropdown-menu,
+  .dropdown-menu .submenu {
+    position: relative;
+    left: 0;
+    width: 100%;
+  }
+}
