@@ -23,29 +23,37 @@ case $option in
     ./chefdeploy
     ;;
   4)
+    echo "🔄 Performing deep clean..."
     rm -rf build node_modules/.cache
     ;;
   5)
-    echo "Syncing with GitHub..."
-    git fetch origin
-
-    [ -d backups ] && git rm -r --cached backups
-    [ -d node_modules/.cache ] && git rm -r --cached node_modules/.cache
-
+    echo "🔄 Syncing with GitHub..."
+    
+    # Remove any old locks or leftover git processes
+    find . -name "*.lock" -type f -delete
+    
+    # Remove cached folders that should not be tracked
+    git rm -r --cached backups 2>/dev/null
+    git rm -r --cached node_modules/.cache 2>/dev/null
+    
     git add .
-    git commit -m "Sync with GitHub" || echo "No changes to commit"
-
-    current_branch=$(git rev-parse --abbrev-ref HEAD)
-    git push origin "$current_branch"
+    
+    # Commit if there are changes
+    if ! git diff-index --quiet HEAD; then
+      git commit -m "Sync with GitHub: sanitize project structure"
+    fi
+    
+    git push
     ;;
   6)
-    echo "Syncing with Builder.io..."
-    # Insert Builder.io sync commands here
+    echo "🔄 Syncing with Builder.io..."
+    # Add your Builder.io sync commands here
     ;;
   7)
-    echo "Launching Builder.io Editor..."
+    echo "🚀 Launching Builder.io Editor..."
+    # Add local launch command here
     ;;
   *)
-    echo "Invalid option. Please enter 1-7."
+    echo "❌ Invalid option, exiting."
     ;;
 esac
