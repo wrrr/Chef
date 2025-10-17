@@ -1,8 +1,12 @@
+// /functions/sendContact.js
+
 export default async function sendContact(req, env) {
+  // Only allow POST
   if (req.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
   }
 
+  // Parse JSON body
   let data;
   try {
     data = await req.json();
@@ -11,10 +15,13 @@ export default async function sendContact(req, env) {
   }
 
   const { name, email, message } = data;
+
+  // Validate required fields
   if (!name || !email || !message) {
     return new Response("All fields are required", { status: 400 });
   }
 
+  // Prepare payload for SMTP2GO REST API
   const payload = {
     api_key: env.SMTP2GO_API_KEY,
     to: [env.RECEIVE_TO],
