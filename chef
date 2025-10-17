@@ -1,59 +1,23 @@
 #!/bin/zsh
 
-echo "====================================="
-echo "1️⃣ Launch Website Preview (Local)"
-echo "2️⃣ Prepare Website for Launch (Build)"
-echo "3️⃣ Publish Live Website (Cloudflare)"
-echo "4️⃣ Deep Clean & Reset Project"
-echo "5️⃣ Sync Local Repository with GitHub"
-echo "6️⃣ Sync with Builder.io"
-echo "7️⃣ Launch Builder.io Editor (Local)"
-echo "====================================="
-echo "Enter 1, 2, 3, 4, 5, 6, or 7: "
-read option
+echo "🔄 Staging local changes..."
+git add .
+if ! git diff-index --quiet HEAD; then
+  git commit -m "Sync with GitHub: sanitize project structure"
+fi
+git push
 
-case $option in
-  1)
-    npm start
-    ;;
-  2)
-    npm run build
-    ;;
-  3)
-    ./chefdeploy
-    ;;
-  4)
-    echo "🔄 Performing deep clean..."
-    rm -rf build node_modules/.cache
-    ;;
-  5)
-    echo "🔄 Syncing with GitHub..."
+echo "📦 Installing dependencies..."
+npm install
 
-    # Remove any old locks or leftover git processes
-    find . -name "*.lock" -type f -delete
+echo "📦 Building production bundle..."
+npm run build
 
-    # Remove cached folders that should not be tracked
-    git rm -r --cached backups 2>/dev/null
-    git rm -r --cached node_modules/.cache 2>/dev/null
+echo "☁️ Deploying to Cloudflare Pages..."
+# Clear Wrangler state
+rm -rf .wrangler/state
 
-    git add .
+# Deploy using the correct command for Pages
+wrangler pages deploy ./build --env-file .env
 
-    # Commit if there are changes
-    if ! git diff-index --quiet HEAD; then
-      git commit -m "Sync with GitHub: sanitize project structure"
-    fi
-    
-    git push
-    ;;
-  6)
-    echo "🔄 Syncing with Builder.io..."
-    # Add your Builder.io sync commands here
-    ;;
-  7)
-    echo "🚀 Launching Builder.io Editor..."
-    # Add local launch command here
-    ;;
-  *)
-    echo "❌ Invalid option, exiting."
-    ;;
-esac
+echo "✅ Deployment complete! Visit your live site."

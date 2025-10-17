@@ -45,7 +45,7 @@ wrangler pages deploy build || {
 }
 
 # Open the live site
-LIVE_URL="https://chefs2table-prod.pages.dev"
+LIVE_URL="https://chefs2u.pages.dev"
 echo "🌐 Opening live site: $LIVE_URL"
 open $LIVE_URL
 
