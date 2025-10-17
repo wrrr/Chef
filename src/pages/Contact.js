@@ -1,59 +1,50 @@
-import React, { useState } from "react";
-import "./Contact.css";
+// /functions/sendContact.js
 
-export default function Contact() {
-  const [status, setStatus] = useState("");
+export async function onRequestPost({ request, env }) {
+  // Parse JSON body
+  let data;
+  try {
+    data = await request.json();
+  } catch {
+    return new Response("Invalid JSON", { status: 400 });
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setStatus("Sending...");
+  const { name, email, message } = data;
 
-    const formData = {
-      name: e.target.name.value,
-      email: e.target.email.value,
-      message: e.target.message.value,
-    };
+  // Validate required fields
+  if (!name || !email || !message) {
+    return new Response("All fields are required", { status: 400 });
+  }
 
-    try {
-      const res = await fetch("/sendContact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (res.ok) {
-        setStatus("Message sent!");
-        e.target.reset();
-      } else {
-        const text = await res.text();
-        setStatus(`Failed to send message: ${text}`);
-      }
-    } catch (err) {
-      console.error("Error sending message:", err);
-      setStatus("Error sending message.");
-    }
+  // Prepare payload for SMTP2GO API using API key
+  const payload = {
+    api_key: env.SMTP2GO_API_KEY,
+    to: [env.RECEIVE_TO],
+    sender: env.SEND_FROM,
+    subject: `New Contact Form Submission from ${name}`,
+    text_body: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+    html_body: `<p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Message:</strong><br/>${message}</p>`,
   };
 
-  return (
-    <section className="contact-page container">
-      <h2 className="contact-title">Contact Us</h2>
-      <p className="contact-description">
-        Have questions or want to get in touch? Fill out the form below and we’ll respond as soon as possible.
-      </p>
+  try {
+    const response = await fetch("https://api.smtp2go.com/v3/email/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-      <form className="contact-form" onSubmit={handleSubmit}>
-        <label htmlFor="name">Name</label>
-        <input type="text" id="name" name="name" placeholder="Your Name" required />
+    const result = await response.json();
 
-        <label htmlFor="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="you@example.com" required />
-
-        <label htmlFor="message">Message</label>
-        <textarea id="message" name="message" rows="5" placeholder="Your message..." required></textarea>
-
-        <button type="submit" className="contact-submit">Send Message</button>
-        <p>{status}</p>
-      </form>
-    </section>
-  );
+    if (result.data && result.data.success === 1) {
+      return new Response("Message sent successfully", { status: 200 });
+    } else {
+      console.error("SMTP2GO error:", result);
+      return new Response("Failed to send message", { status: 500 });
+    }
+  } catch (err) {
+    console.error("Error sending email:", err);
+    return new Response("Error sending message", { status: 500 });
+  }
 }

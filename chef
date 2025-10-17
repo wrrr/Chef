@@ -14,79 +14,45 @@ read option
 
 case $option in
   1)
-    echo "🚀 Launching local website preview..."
     npm start
     ;;
-
   2)
-    echo "📦 Building project for launch..."
     npm run build
     ;;
-
   3)
+    echo "📦 Building production bundle..."
+    npm run build
+
     echo "☁️ Deploying to Cloudflare Pages..."
-    # Ensure the build exists
-    if [ ! -d "./build" ]; then
-      echo "❌ Build folder not found. Please run option 2 first."
-      exit 1
-    fi
+    rm -rf .wrangler/state
 
-    # Deploy to Cloudflare Pages using wrangler
-    DEPLOY_OUTPUT=$(wrangler pages deploy ./build --branch main --commit-dirty=true)
-
-    echo "$DEPLOY_OUTPUT"
-
-    # Extract the live URL from the deploy output (last URL with .pages.dev)
-    LIVE_URL=$(echo "$DEPLOY_OUTPUT" | grep -o 'https://.*\.pages\.dev' | tail -n 1)
-
-    if [ -n "$LIVE_URL" ]; then
-      echo "🌐 Opening live site: $LIVE_URL"
-      # Open in default browser
-      if [[ "$OSTYPE" == "darwin"* ]]; then
-        open "$LIVE_URL"
-      elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        xdg-open "$LIVE_URL"
-      else
-        echo "Please open this URL manually: $LIVE_URL"
-      fi
-    else
-      echo "❌ Could not detect live URL from deployment output."
-    fi
+    wrangler pages deploy ./build --env-file .env --commit-dirty=true
+    echo "✅ Deployment complete!"
     ;;
-
   4)
     echo "🔄 Performing deep clean..."
     rm -rf build node_modules/.cache
     ;;
-
   5)
     echo "🔄 Syncing with GitHub..."
-    # Remove leftover locks and cached folders
     find . -name "*.lock" -type f -delete
     git rm -r --cached backups 2>/dev/null
     git rm -r --cached node_modules/.cache 2>/dev/null
-
     git add .
-
-    # Commit only if there are changes
     if ! git diff-index --quiet HEAD; then
       git commit -m "Sync with GitHub: sanitize project structure"
     fi
-
     git push
     ;;
-
   6)
     echo "🔄 Syncing with Builder.io..."
-    # Add Builder.io sync commands here
+    # Add your Builder.io sync commands here
     ;;
-
   7)
-    echo "🚀 Launching Builder.io Editor locally..."
-    # Add Builder.io local launch command here
+    echo "🚀 Launching Builder.io Editor..."
+    # Add local launch command here
     ;;
-
   *)
-    echo "❌ Invalid option. Exiting."
+    echo "❌ Invalid option, exiting."
     ;;
 esac

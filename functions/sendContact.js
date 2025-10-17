@@ -1,6 +1,6 @@
 // /functions/sendContact.js
 
-export const onRequestPost = async ({ request, env }) => {
+export async function onRequestPost({ request, env }) {
   // Parse JSON body
   let data;
   try {
@@ -47,4 +47,4 @@ export const onRequestPost = async ({ request, env }) => {
     console.error("Error sending email:", err);
     return new Response("Error sending message", { status: 500 });
   }
-};
+}
