@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { cities } from "../data/cities";
+import { cities } from "./cities"; // <- make sure this matches the location
 import "../styles/Home.css";  // Make sure Home.css exists or adjust to your CSS file
 
 export default function EmailSignup() {
