@@ -1,15 +1,10 @@
 // /functions/sendContact.js
 
-export default async function sendContact(req, env) {
-  // Only allow POST
-  if (req.method !== "POST") {
-    return new Response("Method Not Allowed", { status: 405 });
-  }
-
+export const onRequestPost = async ({ request, env }) => {
   // Parse JSON body
   let data;
   try {
-    data = await req.json();
+    data = await request.json();
   } catch {
     return new Response("Invalid JSON", { status: 400 });
   }
@@ -52,4 +47,4 @@ export default async function sendContact(req, env) {
     console.error("Error sending email:", err);
     return new Response("Error sending message", { status: 500 });
   }
-}
+};
