@@ -15,22 +15,21 @@ export default function Contact() {
     };
 
     try {
-      const res = await fetch("/api/sendContact", {
+      const res = await fetch("/sendContact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       if (res.ok) {
-        setStatus("Message sent successfully!");
+        setStatus("Message sent!");
         e.target.reset();
       } else {
-        const data = await res.json();
-        setStatus(data.error || "Failed to send message.");
+        setStatus("Failed to send message.");
       }
     } catch (err) {
-      console.error("Error sending message:", err);
       setStatus("Error sending message.");
+      console.error(err);
     }
   };
 
@@ -52,9 +51,8 @@ export default function Contact() {
         <textarea id="message" name="message" rows="5" placeholder="Your message..." required></textarea>
 
         <button type="submit" className="contact-submit">Send Message</button>
+        <p>{status}</p>
       </form>
-
-      {status && <p className="contact-status">{status}</p>}
     </section>
   );
 }
