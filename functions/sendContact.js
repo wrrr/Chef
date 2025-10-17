@@ -1,7 +1,7 @@
 // /functions/sendContact.js
 
 export async function onRequestPost({ request, env }) {
-  // Parse JSON body
+  // Parse and validate JSON body
   let data;
   try {
     data = await request.json();
@@ -9,35 +9,40 @@ export async function onRequestPost({ request, env }) {
     return new Response("Invalid JSON", { status: 400 });
   }
 
-  const { name, email, message } = data;
+  const { name, email, message } = data || {};
 
-  // Validate required fields
   if (!name || !email || !message) {
     return new Response("All fields are required", { status: 400 });
   }
 
-  // Prepare payload for SMTP2GO REST API
+  // Construct SMTP2GO payload
   const payload = {
-    api_key: env.SMTP2GO_API_KEY,
     to: [env.RECEIVE_TO],
-    sender: env.SEND_FROM,
+    sender: env.SEND_FROM, // must be verified in SMTP2GO
     subject: `New Contact Form Submission from ${name}`,
-    text_body: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+    text_body: `Name: ${name}\nEmail: ${email}\nMessage:\n${message}`,
     html_body: `<p><strong>Name:</strong> ${name}</p>
                 <p><strong>Email:</strong> ${email}</p>
                 <p><strong>Message:</strong><br/>${message}</p>`,
+    // Include Reply-To so replies go to the submitter
+    custom_headers: [{ header: "Reply-To", value: email }],
   };
 
   try {
     const response = await fetch("https://api.smtp2go.com/v3/email/send", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        // use secure header authentication instead of body key
+        "X-Smtp2go-Api-Key": env.SMTP2GO_API_KEY,
+      },
       body: JSON.stringify(payload),
     });
 
     const result = await response.json();
 
-    if (result.data && result.data.success === 1) {
+    // ✅ correct success property
+    if (result?.data?.succeeded === 1) {
       return new Response("Message sent successfully", { status: 200 });
     } else {
       console.error("SMTP2GO error:", result);
