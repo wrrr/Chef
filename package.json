@@ -13,6 +13,7 @@
   "dependencies": {
     "@builder.io/react": "^8.2.8",
     "autoprefixer": "^10.4.15",
+    "dotenv": "^17.2.3",
     "framer-motion": "^11.0.0",
     "lucide-react": "^0.319.0",
     "postcss": "^8.4.24",
