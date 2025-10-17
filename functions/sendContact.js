@@ -1,41 +1,48 @@
-import nodemailer from "nodemailer";
-
-export default async function handler(req, res) {
+export default async function sendContact(req, env) {
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Method not allowed" });
-    return;
+    return new Response("Method Not Allowed", { status: 405 });
   }
 
-  const { name, email, message } = await req.json();
+  let data;
+  try {
+    data = await req.json();
+  } catch {
+    return new Response("Invalid JSON", { status: 400 });
+  }
 
+  const { name, email, message } = data;
   if (!name || !email || !message) {
-    return new Response(JSON.stringify({ error: "All fields are required" }), { status: 400 });
+    return new Response("All fields are required", { status: 400 });
   }
 
-  const transporter = nodemailer.createTransport({
-    host: "mail.smtp2go.com",
-    port: 587,
-    auth: {
-      user: process.env.SEND_FROM, // your SMTP2GO username/email
-      pass: process.env.SMTP2GO_API_KEY, // your SMTP2GO password/API key
-    },
-  });
-
-  const mailOptions = {
-    from: `"Chefs2Table Contact" <${process.env.SEND_FROM}>`,
-    to: process.env.RECEIVE_TO, // destination email
+  const payload = {
+    api_key: env.SMTP2GO_API_KEY,
+    to: [env.RECEIVE_TO],
+    sender: env.SEND_FROM,
     subject: `New Contact Form Submission from ${name}`,
-    text: message,
-    html: `<p><strong>Name:</strong> ${name}</p>
-           <p><strong>Email:</strong> ${email}</p>
-           <p><strong>Message:</strong><br/>${message}</p>`,
+    text_body: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+    html_body: `<p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Message:</strong><br/>${message}</p>`,
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    return new Response(JSON.stringify({ message: "Message sent successfully" }), { status: 200 });
+    const response = await fetch("https://api.smtp2go.com/v3/email/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+
+    if (result.data && result.data.success === 1) {
+      return new Response("Message sent successfully", { status: 200 });
+    } else {
+      console.error("SMTP2GO error:", result);
+      return new Response("Failed to send message", { status: 500 });
+    }
   } catch (err) {
     console.error("Error sending email:", err);
-    return new Response(JSON.stringify({ error: "Failed to send message" }), { status: 500 });
+    return new Response("Error sending message", { status: 500 });
   }
 }

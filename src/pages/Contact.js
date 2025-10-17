@@ -25,11 +25,12 @@ export default function Contact() {
         setStatus("Message sent!");
         e.target.reset();
       } else {
-        setStatus("Failed to send message.");
+        const text = await res.text();
+        setStatus(`Failed to send message: ${text}`);
       }
     } catch (err) {
+      console.error("Error sending message:", err);
       setStatus("Error sending message.");
-      console.error(err);
     }
   };
 
