@@ -1,51 +1,56 @@
-import React from "react";
-import Chef1 from "../assets/images/chefs/chef1.jpg";
-import Chef2 from "../assets/images/chefs/chef2.jpg";
-import Chef3 from "../assets/images/chefs/chef3.jpg";
-import Chef4 from "../assets/images/chefs/chef4.jpg";
-import Chef5 from "../assets/images/chefs/chef5.jpg";
-import "../components/ChefGrid.css";
+// src/pages/MeetLocalChefs.js
+import React, { useMemo } from "react";
+import { Link, useParams } from "react-router-dom";
+import ChefGrid from "../components/ChefGrid";
+import { CITIES as MAIN_CITIES } from "../components/cities";
 
-const chefs = [
-  { name: "Chef Maria", specialty: "Farm-to-Table Culinary Expert", image: Chef1 },
-  { name: "Chef Marcus", specialty: "Master of Savory Delights", image: Chef2 },
-  { name: "Chef Luis", specialty: "Gourmet Specialist in Seasonal Dishes", image: Chef3 },
-  { name: "Chef Ana", specialty: "Bringing Desserts to Life", image: Chef4 },
-  { name: "Chef Quinn", specialty: "Expert in Artisanal Breads & Pastries", image: Chef5 },
+// Extra cities you liked in the old horizontal menu
+const EXTRA_CITIES = [
+  { name: "Austin",  slug: "austin"  },
+  { name: "Dallas",  slug: "dallas"  },
+  { name: "Houston", slug: "houston" },
+  { name: "Miami",   slug: "miami"   },
+  { name: "New York City", slug: "new-york" }, // route stays /chefs/new-york
 ];
 
+const prettyCity = (slug) =>
+  (slug || "")
+    .split("-")
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join(" ");
+
 export default function MeetLocalChefs() {
-  const firstRow = chefs.slice(0, 3);
-  const secondRow = chefs.slice(3);
+  const { city: cityParam } = useParams();
+  const activeSlug = (cityParam || "").toLowerCase() || "toronto";
+
+  // Merge main + extra cities (dedup by slug)
+  const ALL_CITIES = useMemo(() => {
+    const bySlug = new Map();
+    [...MAIN_CITIES, ...EXTRA_CITIES].forEach((c) => bySlug.set(c.slug, c));
+    return Array.from(bySlug.values());
+  }, []);
 
   return (
     <section className="chef-grid-container">
-      {/* Title above all chefs */}
+      {/* Horizontal city pills */}
+      <nav className="city-pills" aria-label="Cities">
+        {ALL_CITIES.map((c) => (
+          <Link
+            key={c.slug}
+            className={`pill ${activeSlug === c.slug ? "active" : ""}`}
+            to={`/chefs/${c.slug}`}
+          >
+            {c.name}
+          </Link>
+        ))}
+      </nav>
+
       <h2 className="chef-grid-title" style={{ color: "#9b1c18" }}>
-        Meet Local Chefs
+        Meet Local Chefs — {prettyCity(activeSlug)}
       </h2>
 
-      <div className="chef-grid">
-        {firstRow.map((chef) => (
-          <div key={chef.name} className="chef-card">
-            <img src={chef.image} alt={chef.name} className="chef-image" />
-            <h3 className="chef-name">{chef.name}</h3>
-            <p className="chef-specialty">{chef.specialty}</p>
-          </div>
-        ))}
-      </div>
-
-      {secondRow.length > 0 && (
-        <div className="chef-grid second-row">
-          {secondRow.map((chef) => (
-            <div key={chef.name} className="chef-card">
-              <img src={chef.image} alt={chef.name} className="chef-image" />
-              <h3 className="chef-name">{chef.name}</h3>
-              <p className="chef-specialty">{chef.specialty}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Key forces re-mount -> fresh shuffle & animation per city */}
+      <ChefGrid key={activeSlug} city={activeSlug} />
     </section>
   );
 }

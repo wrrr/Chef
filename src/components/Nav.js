@@ -1,7 +1,20 @@
+// src/components/Nav.js
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import "./Nav.css"; // ✅ Correct relative path
-import logo from "../assets/logo.png"; // ✅ Correct logo path
+import "./Nav.css";
+import logo from "../assets/logo.png";
+
+// Visible labels for the submenu
+const CITY_LABELS = ["Toronto", "New York", "Boston", "Chicago", "New Orleans"];
+
+// Make URL-friendly slugs (e.g., "New York" -> "new-york")
+const slugifyCity = (name) =>
+  name
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
 export default function Nav() {
   const [chefsOpen, setChefsOpen] = useState(false);
@@ -34,13 +47,15 @@ export default function Nav() {
                 onMouseEnter={() => setCitiesOpen(true)}
                 onMouseLeave={() => setCitiesOpen(false)}
               >
+                {/* Parent item; /chefs will redirect to a default city in App.js */}
                 <Link to="/chefs">Meet Local Chefs</Link>
+
                 <ul className="submenu" style={{ display: citiesOpen ? "block" : "none" }}>
-                  <li><Link to="/chefs">Toronto</Link></li>
-                  <li><Link to="/chefs">New York</Link></li>
-                  <li><Link to="/chefs">Boston</Link></li>
-                  <li><Link to="/chefs">Chicago</Link></li>
-                  <li><Link to="/chefs">New Orleans</Link></li>
+                  {CITY_LABELS.map((label) => (
+                    <li key={label}>
+                      <Link to={`/chefs/${slugifyCity(label)}`}>{label}</Link>
+                    </li>
+                  ))}
                 </ul>
               </li>
             </ul>

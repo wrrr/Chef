@@ -1,1 +1,10 @@
-/* /index.html 200
+# --- Function routes: make sure these are ABOVE the SPA catch-all ---
+/sendContact              200
+/sendContact/*            200
+
+# --- (optional) other API/function endpoints go here ---
+# /api/*                  200
+
+# --- SPA fallback (must come LAST) ---
+/*                        /index.html   200
+

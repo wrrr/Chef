@@ -1,4 +1,15 @@
+
 # wrangler.toml
 name = "chefs2u"
 compatibility_date = "2025-10-15"
 pages_build_output_dir = "./build"
+
+# Optional: you can keep or remove these if you’ve moved them to Secrets.
+# [vars]
+# SEND_FROM = "sales@wordsrack.com"
+# RECEIVE_TO = "cto@12flat.com"
+
+[[d1_databases]]
+binding = "chefs2table"                     # <-- how you’ll reference it in code: env.chefs2table
+database_name = "chefs2table"
+database_id = "670b7f7c-4db5-4e82-b5a2-252f90db849e"
