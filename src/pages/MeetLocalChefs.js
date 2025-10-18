@@ -1,56 +1,77 @@
 // src/pages/MeetLocalChefs.js
-import React, { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useMemo, useEffect } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import ChefGrid from "../components/ChefGrid";
-import { CITIES as MAIN_CITIES } from "../components/cities";
+import "./MeetLocalChefs.css";
 
-// Extra cities you liked in the old horizontal menu
-const EXTRA_CITIES = [
-  { name: "Austin",  slug: "austin"  },
-  { name: "Dallas",  slug: "dallas"  },
-  { name: "Houston", slug: "houston" },
-  { name: "Miami",   slug: "miami"   },
-  { name: "New York City", slug: "new-york" }, // route stays /chefs/new-york
+const CITY_LIST = [
+  { slug: "toronto", label: "Toronto" },
+  { slug: "new-york", label: "New York" },
+  { slug: "boston", label: "Boston" },
+  { slug: "chicago", label: "Chicago" },
+  { slug: "new-orleans", label: "New Orleans" },
+  { slug: "austin", label: "Austin" },
+  { slug: "dallas", label: "Dallas" },
+  { slug: "houston", label: "Houston" },
+  { slug: "miami", label: "Miami" },
 ];
 
-const prettyCity = (slug) =>
-  (slug || "")
-    .split("-")
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join(" ");
+function normalizeCityParam(p) {
+  if (!p) return "toronto";
+  return String(p).trim().toLowerCase().replace(/\s+/g, "-");
+}
 
 export default function MeetLocalChefs() {
-  const { city: cityParam } = useParams();
-  const activeSlug = (cityParam || "").toLowerCase() || "toronto";
+  const params = useParams();               // /chefs/:city (or /chefs)
+  const navigate = useNavigate();
 
-  // Merge main + extra cities (dedup by slug)
-  const ALL_CITIES = useMemo(() => {
-    const bySlug = new Map();
-    [...MAIN_CITIES, ...EXTRA_CITIES].forEach((c) => bySlug.set(c.slug, c));
-    return Array.from(bySlug.values());
-  }, []);
+  const activeSlug = useMemo(
+    () => normalizeCityParam(params.city || "toronto"),
+    [params.city]
+  );
+
+  const activeCity =
+    CITY_LIST.find((c) => c.slug === activeSlug) || CITY_LIST[0];
+
+  // If someone hits /chefs (no city), normalize URL to default city
+  useEffect(() => {
+    if (!params.city) {
+      navigate(`/chefs/${activeCity.slug}`, { replace: true });
+    }
+  }, [params.city, navigate, activeCity.slug]);
 
   return (
-    <section className="chef-grid-container">
-      {/* Horizontal city pills */}
-      <nav className="city-pills" aria-label="Cities">
-        {ALL_CITIES.map((c) => (
-          <Link
-            key={c.slug}
-            className={`pill ${activeSlug === c.slug ? "active" : ""}`}
-            to={`/chefs/${c.slug}`}
-          >
-            {c.name}
-          </Link>
-        ))}
+    <main className="mlc-wrap">
+      {/* Elegant header bar */}
+      <section className="city-header-bar" aria-live="polite">
+        <div className="city-header-left">
+          <span className="city-kicker">City</span>
+          <h2 className="city-title">
+            {activeCity.label} <span className="city-sub">• Meet Local Chefs</span>
+          </h2>
+        </div>
+      </section>
+
+      {/* Pills */}
+      <nav className="city-pills" aria-label="Choose a city" role="tablist">
+        {CITY_LIST.map((c) => {
+          const active = c.slug === activeSlug;
+          return (
+            <Link
+              key={c.slug}
+              to={`/chefs/${c.slug}`}
+              role="tab"
+              aria-selected={active}
+              className={`pill${active ? " active" : ""}`}
+            >
+              {c.label}
+            </Link>
+          );
+        })}
       </nav>
 
-      <h2 className="chef-grid-title" style={{ color: "#9b1c18" }}>
-        Meet Local Chefs — {prettyCity(activeSlug)}
-      </h2>
-
-      {/* Key forces re-mount -> fresh shuffle & animation per city */}
-      <ChefGrid key={activeSlug} city={activeSlug} />
-    </section>
+      {/* Grid */}
+      <ChefGrid city={activeSlug} />
+    </main>
   );
 }

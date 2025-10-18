@@ -1,0 +1,47 @@
+/* src/components/ChefGrid.anim.css */
+.card-anim {
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(.22,.61,.36,1);
+  /* duration & delay set inline per-card for variety */
+}
+
+/* Directions (names map to keyframes below) */
+.card-anim.slide-left       { animation-name: slideInLeft; }
+.card-anim.slide-right      { animation-name: slideInRight; }
+.card-anim.slide-up-left    { animation-name: slideInUpLeft; }
+.card-anim.slide-up-right   { animation-name: slideInUpRight; }
+.card-anim.slide-down-left  { animation-name: slideInDownLeft; }
+.card-anim.slide-down-right { animation-name: slideInDownRight; }
+
+/* Keyframes */
+@keyframes slideInLeft {
+  from { transform: translateX(-26px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes slideInRight {
+  from { transform: translateX(26px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes slideInUpLeft {
+  from { transform: translate(-24px, 18px); opacity: 0; }
+  to   { transform: translate(0, 0);        opacity: 1; }
+}
+@keyframes slideInUpRight {
+  from { transform: translate(24px, 18px); opacity: 0; }
+  to   { transform: translate(0, 0);       opacity: 1; }
+}
+@keyframes slideInDownLeft {
+  from { transform: translate(-24px, -18px); opacity: 0; }
+  to   { transform: translate(0, 0);         opacity: 1; }
+}
+@keyframes slideInDownRight {
+  from { transform: translate(24px, -18px); opacity: 0; }
+  to   { transform: translate(0, 0);        opacity: 1; }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .card-anim { animation: none !important; opacity: 1; }
+}

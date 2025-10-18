@@ -1,196 +1,118 @@
 // src/pages/Contact.js
 import React, { useEffect, useRef, useState } from "react";
-import "./Contact.css"; // stylesheet in the same folder
+import "./Contact.css"; // keep your styles
 
-const TURNSTILE_SITE_KEY = "0x4AAAAAAB7MQ0uzOgJiN9fM"; // <-- put your SITE key here
+// Replace with your real Turnstile **site** key string
+const TURNSTILE_SITE_KEY = "0x4AAAAAAB7MQ0uzOgJiN9fM";
 
 export default function Contact() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
-  const [token, setToken] = useState("");
-  const [status, setStatus] = useState({ kind: "idle", msg: "" }); // idle|sending|ok|err
-  const [scriptReady, setScriptReady] = useState(false);
   const widgetRef = useRef(null);
+  const tokenRef = useRef("");
+  const [status, setStatus] = useState(null);
 
-  // Load Turnstile script once
+  // Load Turnstile script and render widget
   useEffect(() => {
-    const EXISTING_ID = "cf-turnstile-script";
-    if (document.getElementById(EXISTING_ID)) {
-      setScriptReady(true);
-      return;
+    function render() {
+      if (!window.turnstile) return;
+      window.turnstile.render(widgetRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: (token) => {
+          tokenRef.current = token;
+        },
+        "error-callback": () => {
+          tokenRef.current = "";
+        },
+        "expired-callback": () => {
+          tokenRef.current = "";
+        },
+        theme: "light",
+      });
     }
-    const s = document.createElement("script");
-    s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-    s.async = true;
-    s.defer = true;
-    s.id = EXISTING_ID;
-    s.onload = () => setScriptReady(true);
-    document.head.appendChild(s);
+
+    if (!document.querySelector('script[src*="challenges.cloudflare.com/turnstile"]')) {
+      const s = document.createElement("script");
+      s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+      s.async = true;
+      s.defer = true;
+      s.onload = render;
+      document.body.appendChild(s);
+    } else {
+      render();
+    }
   }, []);
 
-  // Expose a stable callback for Turnstile to call
-  useEffect(() => {
-    // Cloudflare Turnstile will call window.onTurnstileOK(token)
-    window.onTurnstileOK = (tkn) => {
-      setToken(tkn || "");
-    };
-    return () => {
-      try {
-        delete window.onTurnstileOK;
-      } catch {
-        window.onTurnstileOK = undefined;
-      }
-    };
-  }, []);
-
-  // (Re)render/refresh widget when script is ready
-  useEffect(() => {
-    if (!scriptReady || !widgetRef.current) return;
-    if (window.turnstile?.reset) {
-      try {
-        window.turnstile.reset(widgetRef.current);
-      } catch {
-        // ignore
-      }
-    }
-  }, [scriptReady]);
-
-  async function handleSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
+    setStatus(null);
 
-    // basic client-side validation
-    if (!name.trim() || !email.trim() || !message.trim()) {
-      setStatus({ kind: "err", msg: "Please fill out all fields." });
-      return;
-    }
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const payload = Object.fromEntries(formData.entries());
+
+    const token = tokenRef.current;
     if (!token) {
-      setStatus({ kind: "err", msg: "Please complete the Turnstile challenge." });
+      setStatus({ ok: false, msg: "Please complete the CAPTCHA." });
       return;
     }
-
-    setStatus({ kind: "sending", msg: "Sending..." });
 
     try {
       const res = await fetch("/sendContact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          message: message.trim(),
-          turnstileToken: token,
-        }),
+        headers: {
+          "Content-Type": "application/json",
+          "cf-turnstile-response": token,
+        },
+        body: JSON.stringify(payload),
       });
-
-      const text = await res.text();
       if (res.ok) {
-        setStatus({ kind: "ok", msg: "Message sent! We’ll get back to you soon." });
-        setName("");
-        setEmail("");
-        setMessage("");
+        setStatus({ ok: true, msg: "Message sent successfully!" });
+        form.reset();
+        // reset widget for next submission
+        if (window.turnstile) window.turnstile.reset(widgetRef.current);
       } else {
-        setStatus({
-          kind: "err",
-          msg: text || "Something went wrong. Please try again.",
-        });
+        const text = await res.text();
+        setStatus({ ok: false, msg: text || "Failed to send message." });
       }
-    } catch {
-      setStatus({
-        kind: "err",
-        msg: "Network error. Please check your connection and try again.",
-      });
-    } finally {
-      // Refresh Turnstile for another submission
-      if (window.turnstile?.reset && widgetRef.current) {
-        try {
-          window.turnstile.reset(widgetRef.current);
-        } catch {
-          // ignore
-        }
-      }
-      setToken("");
+    } catch (err) {
+      setStatus({ ok: false, msg: "Network error. Please try again." });
     }
   }
 
   return (
-    <div className="contact-page">
-      <h1 className="contact-title">Contact Us</h1>
-
-      <form className="contact-form" onSubmit={handleSubmit} noValidate>
-        <label className="field">
-          <span>Name</span>
-          <input
-            type="text"
-            name="name"
-            autoComplete="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+    <main className="contact-page">
+      <h1>Contact Us</h1>
+      <form className="contact-form" onSubmit={onSubmit}>
+        <label>
+          Name
+          <input type="text" name="name" required />
         </label>
 
-        <label className="field">
-          <span>Email</span>
-          <input
-            type="email"
-            name="email"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+        <label>
+          Email
+          <input type="email" name="email" required />
         </label>
 
-        <label className="field">
-          <span>Message</span>
-          <textarea
-            name="message"
-            rows={5}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            required
-          />
+        <label>
+          Message
+          <textarea name="message" rows="5" required />
         </label>
 
-        {/* Turnstile widget */}
-        <div
-          ref={widgetRef}
-          className="cf-turnstile"
-          data-sitekey={TURNSTILE_SITE_KEY}
-          data-callback="onTurnstileOK"
-          data-theme="light"
-          style={{ margin: "12px 0" }}
-        />
-        {!scriptReady && (
-          <div className="help-text">Loading verification…</div>
-        )}
+        <div ref={widgetRef} style={{ margin: "8px 0" }} />
 
-        <button
-          type="submit"
-          className="submit-btn"
-          disabled={status.kind === "sending"}
-        >
-          {status.kind === "sending" ? "Sending…" : "Send Message"}
-        </button>
+        <button type="submit">Send</button>
 
-        {status.kind === "ok" && (
-          <div className="status ok" role="status">
+        {status && (
+          <p
+            style={{
+              marginTop: 10,
+              color: status.ok ? "green" : "#9b1c18",
+              fontWeight: 600,
+            }}
+          >
             {status.msg}
-          </div>
-        )}
-        {status.kind === "err" && (
-          <div className="status err" role="alert">
-            {status.msg}
-          </div>
+          </p>
         )}
       </form>
-
-      <noscript>
-        <p style={{ color: "crimson", marginTop: 12 }}>
-          JavaScript is required to submit this form securely.
-        </p>
-      </noscript>
-    </div>
+    </main>
   );
 }

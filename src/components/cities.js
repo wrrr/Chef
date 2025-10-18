@@ -1,42 +1,28 @@
 // src/components/cities.js
 
-// Canonical list with display name + URL-safe slug
-export const CITIES = [
-  { name: "Toronto",     slug: "toronto" },
-  { name: "New York",    slug: "new-york" },
-  { name: "Boston",      slug: "boston" },
-  { name: "Chicago",     slug: "chicago" },
-  { name: "New Orleans", slug: "new-orleans" },
+// Simple string list (used by Hero.js)
+export const CITY_NAMES = [
+  "Toronto",
+  "New York",
+  "Boston",
+  "Chicago",
+  "New Orleans",
+  "Austin",
+  "Dallas",
+  "Houston",
+  "Miami"
 ];
 
-// Legacy export so existing imports don't break
-export const cities = CITIES.map(c => c.name);
+// Canonical object list (used by chefs pages)
+export const CITIES = CITY_NAMES.map((name) => ({
+  name,
+  slug: name.toLowerCase().replace(/\s+/g, "-"),
+}));
 
-// Default (first in list)
-export const DEFAULT_CITY = CITIES[0].slug;
+export const DEFAULT_CITY = "toronto";
 
-// Helpers
-export function getCityBySlug(slug) {
-  if (!slug) return null;
-  const s = String(slug).toLowerCase();
-  return CITIES.find(c => c.slug === s) || null;
-}
+// Back-compat: Hero imports { cities } as strings
+export const cities = CITY_NAMES;
 
-export function normalizeCity(input) {
-  if (!input) return null;
-  const s = String(input).toLowerCase().trim();
-  // slug match
-  let m = CITIES.find(c => c.slug === s);
-  if (m) return m;
-  // name match
-  m = CITIES.find(c => c.name.toLowerCase() === s);
-  if (m) return m;
-  // hyphenate name and compare
-  m = CITIES.find(c => c.slug === s.replace(/\s+/g, "-"));
-  return m || null;
-}
-
-export function ensureValidCitySlug(slug) {
-  const m = getCityBySlug(slug);
-  return m ? m.slug : DEFAULT_CITY;
-}
+// Default export can stay the object list
+export default CITIES;

@@ -1,58 +1,122 @@
-#!/bin/zsh
+#!/usr/bin/env bash
+set -euo pipefail
 
-echo "====================================="
-echo "1️⃣ Launch Website Preview (Local)"
-echo "2️⃣ Prepare Website for Launch (Build)"
-echo "3️⃣ Publish Live Website (Cloudflare)"
-echo "4️⃣ Deep Clean & Reset Project"
-echo "5️⃣ Sync Local Repository with GitHub"
-echo "6️⃣ Sync with Builder.io"
-echo "7️⃣ Launch Builder.io Editor (Local)"
-echo "====================================="
-echo "Enter 1, 2, 3, 4, 5, 6, or 7: "
-read option
+# === Chefs2Table helper ===
+# Dev / Build / Deploy / Ship / Backup / GitHub Sync — now with a looping menu 💫
 
-case $option in
-  1)
-    npm start
-    ;;
-  2)
-    npm run build
-    ;;
-  3)
-    echo "📦 Building production bundle..."
-    npm run build
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$DIR"
 
-    echo "☁️ Deploying to Cloudflare Pages..."
-    rm -rf .wrangler/state
+PROJECT_NAME="chefs2u"
+DEFAULT_PORT="${PORT:-3002}"
 
-    wrangler pages deploy ./build --env-file .env --commit-dirty=true
-    echo "✅ Deployment complete!"
-    ;;
-  4)
-    echo "🔄 Performing deep clean..."
-    rm -rf build node_modules/.cache
-    ;;
-  5)
-    echo "🔄 Syncing with GitHub..."
-    find . -name "*.lock" -type f -delete
-    git rm -r --cached backups 2>/dev/null
-    git rm -r --cached node_modules/.cache 2>/dev/null
-    git add .
-    if ! git diff-index --quiet HEAD; then
-      git commit -m "Sync with GitHub: sanitize project structure"
-    fi
+need() { command -v "$1" >/dev/null 2>&1 || { echo "❌ Missing dependency: $1"; exit 1; }; }
+
+line()  { printf '%*s\n' "70" '' | tr ' ' '─'; }
+title() { echo; line; echo " $1"; line; }
+
+pause() { read -rp $'\n↩️  Press ENTER to return to the menu…'; }
+
+dev() {
+  title "🧪 Dev: CRA on port $DEFAULT_PORT"
+  need npm
+  # Don't kill the whole script if you Ctrl+C the dev server
+  set +e
+  BROWSER=none PORT="$DEFAULT_PORT" npm start
+  code=$?
+  set -e
+  echo
+  echo "🛑 Dev server stopped (exit $code)"
+  pause
+}
+
+build() {
+  title "🛠️  Build: React production bundle"
+  need npm
+  npm run build
+  echo
+  echo "✅ Build done."
+  pause
+}
+
+deploy() {
+  title "🚀 Deploy: Cloudflare Pages ($PROJECT_NAME)"
+  need npx
+  npx wrangler pages deploy ./build --project-name="$PROJECT_NAME" --commit-dirty=true
+  echo
+  echo "✨ Deployment complete."
+  pause
+}
+
+ship() {
+  title "📦 Ship: Build + Deploy"
+  build
+  deploy
+}
+
+backup() {
+  title "💾 Backup: node backup.js"
+  need node
+  if [[ -f "$DIR/backup.js" ]]; then
+    node "$DIR/backup.js"
+  else
+    echo "⚠️ backup.js not found at: $DIR/backup.js"
+  fi
+  pause
+}
+
+github_sync() {
+  title "🔄 GitHub Sync"
+  need git
+  echo "🔄 Syncing with GitHub..."
+  # Clean common junk
+  find . -name "*.lock" -type f -delete
+  git rm -r --cached backups 2>/dev/null || true
+  git rm -r --cached node_modules/.cache 2>/dev/null || true
+
+  git add .
+  if ! git diff-index --quiet HEAD; then
+    git commit -m "Sync with GitHub: sanitize project structure"
     git push
-    ;;
-  6)
-    echo "🔄 Syncing with Builder.io..."
-    # Add your Builder.io sync commands here
-    ;;
-  7)
-    echo "🚀 Launching Builder.io Editor..."
-    # Add local launch command here
-    ;;
-  *)
-    echo "❌ Invalid option, exiting."
-    ;;
-esac
+    echo "✅ Pushed."
+  else
+    echo "ℹ️  No changes to commit."
+  fi
+  pause
+}
+
+main_menu() {
+  clear
+  cat <<'MENU'
+
+Pick an option:
+  1) 🧪  Dev (start CRA on port 3002)
+  2) 🛠️  Build
+  3) 🚀  Deploy
+  4) 📦  Build + Deploy
+  5) 💾  Backup (node backup.js)
+  6) 🔄  GitHub Sync
+  0) ❌  Exit
+MENU
+  echo
+  read -rp "Enter choice: " choice
+  case "${choice:-}" in
+    1) dev ;;
+    2) build ;;
+    3) deploy ;;
+    4) ship ;;
+    5) backup ;;
+    6) github_sync ;;
+    0) echo "👋 Bye!"; exit 0 ;;
+    *) echo "❌ Invalid option."; pause ;;
+  esac
+}
+
+# Dependency preflight (only for tools we actually use)
+need bash
+# npm/npx/wrangler/git/node checks happen inside each task
+
+# Loop forever until you pick Exit
+while true; do
+  main_menu
+done
