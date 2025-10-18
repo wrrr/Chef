@@ -64,8 +64,8 @@ export async function onRequest(context) {
 
   // --- required envs ---
   const accountId = env.CF_ACCOUNT_ID;
-  const apiToken = env.IMAGES_API_TOKEN;
-  const hash = env.IMAGES_ACCOUNT_HASH;
+  const apiToken  = env.IMAGES_API_TOKEN;
+  const hash      = env.IMAGES_ACCOUNT_HASH;
 
   if (!accountId || !apiToken || !hash) {
     return json(
@@ -82,14 +82,10 @@ export async function onRequest(context) {
     );
   }
 
-  // Parse JSON body (optional fields: ttlSeconds, metadata, turnstileToken)
+  // Parse JSON body (optional: ttlSeconds, metadata, turnstileToken)
   let body = {};
   if (request.headers.get("content-type")?.includes("application/json")) {
-    try {
-      body = await request.json();
-    } catch {
-      body = {};
-    }
+    try { body = await request.json(); } catch { body = {}; }
   }
 
   // --- auth gate: ADMIN_TOKEN OR Turnstile ---
@@ -110,18 +106,10 @@ export async function onRequest(context) {
           remoteip: request.headers.get("cf-connecting-ip") || "",
         }),
       }).then((r) => r.json());
-      if (verify?.success) {
-        allowed = true;
-        authMethod = "turnstile";
-      }
-    } catch {
-      // ignore
-    }
+      if (verify?.success) { allowed = true; authMethod = "turnstile"; }
+    } catch { /* ignore */ }
   }
-
-  if (!allowed) {
-    return json({ error: "Unauthorized" }, 401, CORS);
-  }
+  if (!allowed) return json({ error: "Unauthorized" }, 401, CORS);
 
   // TTL (default 10 min; max 1 hour)
   let ttlSeconds = 600;
@@ -129,35 +117,34 @@ export async function onRequest(context) {
     ttlSeconds = Math.floor(body.ttlSeconds);
   }
 
-  // Create a Direct Upload URL
-  const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/images/v2/direct_upload`;
-  const form = new FormData();
-  form.append("requireSignedURLs", "false");
-  form.append("expiry", new Date(Date.now() + ttlSeconds * 1000).toISOString());
-  if (body?.metadata && typeof body.metadata === "object") {
-    form.append("metadata", JSON.stringify(body.metadata));
-  }
-
+  // --- Make API call; always return JSON even on failure ---
   try {
-    const res = await fetch(apiUrl, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiToken}` },
-      body: form,
-    });
+    const apiUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/images/v2/direct_upload`;
+
+    let res;
+    // Prefer multipart if FormData exists; otherwise fall back to no-body POST
+    if (typeof FormData !== "undefined") {
+      const form = new FormData();
+      form.append("requireSignedURLs", "false");
+      form.append("expiry", new Date(Date.now() + ttlSeconds * 1000).toISOString());
+      if (body?.metadata && typeof body.metadata === "object") {
+        form.append("metadata", JSON.stringify(body.metadata));
+      }
+      res = await fetch(apiUrl, { method: "POST", headers: { Authorization: `Bearer ${apiToken}` }, body: form });
+    } else {
+      // Fallback path (Pages Functions environments that lack FormData)
+      res = await fetch(apiUrl, { method: "POST", headers: { Authorization: `Bearer ${apiToken}` } });
+    }
 
     const text = await res.text();
-    let out;
-    try {
-      out = JSON.parse(text);
-    } catch {
-      out = { raw: text };
-    }
+    let out; try { out = JSON.parse(text); } catch { out = { raw: text }; }
 
     if (!res.ok || !out?.success || !out?.result?.uploadURL || !out?.result?.id) {
       return json(
         {
           error: "Images direct_upload failed",
           status: res.status,
+          hint: typeof FormData === "undefined" ? "FormData unavailable; used fallback request" : undefined,
           details: out,
         },
         502,
@@ -167,15 +154,14 @@ export async function onRequest(context) {
 
     const { uploadURL, id } = out.result;
     const deliveryURL = `https://imagedelivery.net/${hash}/${id}/public`;
-
-    return json(
-      { ok: true, auth: authMethod, id, uploadURL, deliveryURL, expiresIn: ttlSeconds },
-      200,
-      CORS
-    );
+    return json({ ok: true, auth: authMethod, id, uploadURL, deliveryURL, expiresIn: ttlSeconds }, 200, CORS);
   } catch (err) {
     return json(
-      { error: "Images API error", message: String(err?.message || err) },
+      {
+        error: "Images API error",
+        message: String(err?.message || err),
+        hint: typeof FormData === "undefined" ? "FormData is not defined in this runtime" : undefined,
+      },
       500,
       CORS
     );
