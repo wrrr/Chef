@@ -2,13 +2,18 @@
   "name": "chefs2table",
   "version": "1.0.0",
   "description": "Chefs2Table website project",
+  "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "react-scripts start",
-    "test": "react-scripts test",
+    "dev": "PORT=3002 react-scripts start",
+    "dev:functions": "wrangler pages dev --local --port=8788",
     "build": "react-scripts build",
-    "deploy": "npm run build && wrangler pages deploy build --project-name=chef --branch=main",
-    "eject": "react-scripts eject"
+    "deploy": "wrangler pages deploy ./build --project-name=chefs2u --commit-dirty=true",
+    "ship": "npm run build && npm run deploy",
+    "backup": "node backup.js",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint \"src/**/*.{js,jsx}\""
   },
   "dependencies": {
     "@builder.io/react": "^8.2.8",
@@ -25,7 +30,15 @@
     "tailwindcss": "^3.4.1"
   },
   "devDependencies": {
-    "@builder.io/cli": "^1.2.10"
+    "@builder.io/cli": "^1.2.10",
+    "eslint-plugin-react-hooks": "^4.6.2"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest",
+      "plugin:react-hooks/recommended"
+    ]
   },
   "browserslist": {
     "production": [

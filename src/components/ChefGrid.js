@@ -3,6 +3,15 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import "./ChefGrid.anim.css";
 
+// Images first (must be before any other statements for eslint import/first)
+import Chef1 from "../assets/images/chefs/chef1.jpg";
+import Chef2 from "../assets/images/chefs/chef2.jpg";
+import Chef3 from "../assets/images/chefs/chef3.jpg";
+import Chef4 from "../assets/images/chefs/chef4.jpg";
+import Chef5 from "../assets/images/chefs/chef5.jpg";
+import Placeholder from "../assets/images/placeholders/chef2table_placeholder.png";
+
+// Inline styles
 const styles = {
   wrap: { width: "100%", margin: "0 auto", maxWidth: 1100 },
   row3: { display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16, alignItems: "start" },
@@ -12,13 +21,7 @@ const styles = {
   spec: { margin: 0, color: "#444" },
 };
 
-import Chef1 from "../assets/images/chefs/chef1.jpg";
-import Chef2 from "../assets/images/chefs/chef2.jpg";
-import Chef3 from "../assets/images/chefs/chef3.jpg";
-import Chef4 from "../assets/images/chefs/chef4.jpg";
-import Chef5 from "../assets/images/chefs/chef5.jpg";
-import Placeholder from "../assets/images/placeholders/chef2table_placeholder.png";
-
+// Local fallback 5 real chef images
 const LOCAL_REAL = [
   { name: "Chef Maria",  specialty: "Farm-to-table",    image: Chef1 },
   { name: "Chef Marcus", specialty: "Savory Delights",  image: Chef2 },
@@ -28,18 +31,24 @@ const LOCAL_REAL = [
 ];
 
 function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0; [a[i],a[j]]=[a[j],a[i]];} return a; }
+function strip(s){ return typeof s === "string" ? s.replace(/^["']|["']$/g, "") : s; }
+
 function normalizeSpecialties(v){
   if (v == null) return "Chef";
   if (Array.isArray(v)) return v.map(strip).filter(Boolean).join(", ");
   if (typeof v === "string") {
     const s = v.trim();
-    if (s.startsWith("[") && s.endsWith("]")) { try { const p = JSON.parse(s); if (Array.isArray(p)) return p.map(strip).filter(Boolean).join(", "); } catch {} }
+    if (s.startsWith("[") && s.endsWith("]")) {
+      try {
+        const p = JSON.parse(s);
+        if (Array.isArray(p)) return p.map(strip).filter(Boolean).join(", ");
+      } catch {}
+    }
     if (s.includes(",")) return s.split(",").map((t)=>strip(t.trim())).filter(Boolean).join(", ");
     return strip(s);
   }
   return "Chef";
 }
-function strip(s){ return typeof s === "string" ? s.replace(/^["']|["']$/g, "") : s; }
 
 function ensureSixWithOnePlaceholder(realPool){
   const dedupe = (items)=>{ const out=[]; const seen=new Set(); for(const it of items){ const img=it?.image; if(!img || img===Placeholder) continue; if(!seen.has(img)){ out.push(it); seen.add(img);} } return out; };
@@ -61,9 +70,7 @@ function makeRng(seedStr){ let seed=hashString(seedStr)||123456789; return ()=>{
 const VARIANTS=["slide-left","slide-right","slide-up-left","slide-up-right","slide-down-left","slide-down-right"];
 
 export default function ChefGrid({ city }) {
-  const safeCity = useMemo(() => String(city || "toronto").toLowerCase(), [city]);
-
-  const instant = useMemo(()=>ensureSixWithOnePlaceholder(LOCAL_REAL),[safeCity]);
+  const instant = useMemo(()=>ensureSixWithOnePlaceholder(LOCAL_REAL),[city]);
   const [cards, setCards] = useState(instant);
 
   useEffect(()=>{
@@ -71,12 +78,12 @@ export default function ChefGrid({ city }) {
     setCards(instant);
     (async ()=>{
       try{
-        const res=await fetch(`/api/chefs?city=${encodeURIComponent(safeCity)}&limit=24`,{ headers:{accept:"application/json"}});
+        const res=await fetch(`/api/chefs?city=${encodeURIComponent(city)}&limit=24`,{ headers:{accept:"application/json"}});
         if(!res.ok) throw new Error(`API ${res.status}`);
         const json=await res.json();
         const fromApi = Array.isArray(json?.chefs)
           ? json.chefs.filter(Boolean).map((c)=>({
-              id: c.id,
+              id: c.id, // keep id so card can deep-link to ChefDemo
               name: c.name || "Local Chef",
               specialty: normalizeSpecialties(c.specialties),
               image: c.photo_url,
@@ -90,7 +97,7 @@ export default function ChefGrid({ city }) {
       }
     })();
     return ()=>{ cancelled=true; };
-  },[safeCity, instant]);
+  },[city, instant]);
 
   const safe = cards.filter(Boolean).slice(0,6);
   while(safe.length<6){
@@ -102,13 +109,13 @@ export default function ChefGrid({ city }) {
   const bottom = safe.slice(3,6);
 
   const animPlan = useMemo(()=>{
-    const rng = makeRng(`${safeCity}-${Date.now()}`);
+    const rng = makeRng(`${city}-${Date.now()}`);
     const dir = Array.from({length:6},()=>VARIANTS[(rng()*VARIANTS.length)|0]);
     const baseDelays=[0,140,280,420,560,700];
     const delays = baseDelays.map((d)=>Math.round(d+(rng()*80-40)));
     const durations = Array.from({length:6},()=> (1.1 + rng()*0.5).toFixed(2)+"s");
     return {dir,delays,durations};
-  },[safeCity]);
+  },[city]);
 
   const renderCard = (chef, i, rowOffset=0)=>{
     const idx = i+rowOffset;
@@ -116,14 +123,9 @@ export default function ChefGrid({ city }) {
     const delay = (animPlan.delays[idx] ?? 0) + "ms";
     const duration = animPlan.durations[idx] || "1.2s";
 
-    // Build href to ChefDemo with robust prefill so names/photos match what was clicked.
-    const params = new URLSearchParams();
-    if (chef?.id) params.set("id", String(chef.id));
-    if (chef?.name) params.set("name", chef.name);
-    if (chef?.image) params.set("photo", chef.image);
-    if (chef?.specialty) params.set("specialties", chef.specialty);
-
-    const href = `/chef-demo/${encodeURIComponent(safeCity)}?${params.toString()}`;
+    const href = chef?.id
+      ? `/chef-demo/${encodeURIComponent(city)}?id=${encodeURIComponent(chef.id)}`
+      : `/chef-demo/${encodeURIComponent(city)}`;
 
     return (
       <Link
@@ -133,8 +135,8 @@ export default function ChefGrid({ city }) {
         style={{ ...styles.card, animationDelay: delay, animationDuration: duration, textDecoration:"none", color:"inherit" }}
         aria-label={`View profile for ${chef?.name || "Chef"}`}
       >
-        <img src={chef.image} alt={chef.name || "Chef"} style={styles.img} />
-        <h3 style={styles.name}>{chef.name || "Chef"}</h3>
+        <img src={chef.image} alt={chef.name} style={styles.img} />
+        <h3 style={styles.name}>{chef.name}</h3>
         <p style={styles.spec}>{normalizeSpecialties(chef.specialty)}</p>
       </Link>
     );

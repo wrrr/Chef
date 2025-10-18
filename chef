@@ -2,121 +2,117 @@
 set -euo pipefail
 
 # === Chefs2Table helper ===
-# Dev / Build / Deploy / Ship / Backup / GitHub Sync — now with a looping menu 💫
+# Minimal menu (Deploy / Ship / Backup / GitHub) — dev & build are hidden shortcuts
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$DIR"
 
 PROJECT_NAME="chefs2u"
-DEFAULT_PORT="${PORT:-3002}"
+DEFAULT_PORT="${PORT:-3002}"   # CRA dev
+PAGES_PORT=8788                # Wrangler Pages dev
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "❌ Missing dependency: $1"; exit 1; }; }
-
-line()  { printf '%*s\n' "70" '' | tr ' ' '─'; }
+line() { printf '%*s\n' "70" '' | tr ' ' '─'; }
 title() { echo; line; echo " $1"; line; }
 
-pause() { read -rp $'\n↩️  Press ENTER to return to the menu…'; }
-
-dev() {
-  title "🧪 Dev: CRA on port $DEFAULT_PORT"
-  need npm
-  # Don't kill the whole script if you Ctrl+C the dev server
-  set +e
-  BROWSER=none PORT="$DEFAULT_PORT" npm start
-  code=$?
-  set -e
-  echo
-  echo "🛑 Dev server stopped (exit $code)"
-  pause
+open_browser() {
+  local url="$1"
+  if command -v open >/dev/null 2>&1; then open "$url" >/dev/null 2>&1 || true
+  elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$url" >/dev/null 2>&1 || true
+  fi
 }
 
-build() {
-  title "🛠️  Build: React production bundle"
+# --- Hidden actions (not shown in menu) ---
+dev_cra() {
   need npm
+  title "🧪 Dev (CRA on port $DEFAULT_PORT)"; echo
+  export PORT="$DEFAULT_PORT"
+  open_browser "http://localhost:$DEFAULT_PORT"
+  npm start
+}
+
+dev_pages() {
+  need wrangler
+  title "🧪 Dev (Pages Functions on port $PAGES_PORT)"; echo
+  open_browser "http://localhost:$PAGES_PORT"
+  wrangler pages dev --compatibility-date=2024-01-01 --port "$PAGES_PORT"
+}
+
+build_only() {
+  need npm
+  title "🛠️  Build: React production bundle"; echo
   npm run build
-  echo
-  echo "✅ Build done."
-  pause
+  echo; echo "✅ Build done."
 }
 
-deploy() {
-  title "🚀 Deploy: Cloudflare Pages ($PROJECT_NAME)"
-  need npx
-  npx wrangler pages deploy ./build --project-name="$PROJECT_NAME" --commit-dirty=true
-  echo
+deploy_only() {
+  need wrangler
+  title "🚀 Deploy: Cloudflare Pages ($PROJECT_NAME)"; echo
+  wrangler pages deploy ./build --project-name="$PROJECT_NAME" --commit-dirty=true
   echo "✨ Deployment complete."
-  pause
 }
 
 ship() {
-  title "📦 Ship: Build + Deploy"
-  build
-  deploy
+  build_only
+  deploy_only
 }
 
 backup() {
-  title "💾 Backup: node backup.js"
   need node
-  if [[ -f "$DIR/backup.js" ]]; then
-    node "$DIR/backup.js"
-  else
-    echo "⚠️ backup.js not found at: $DIR/backup.js"
-  fi
-  pause
+  title "💾 Backup"; echo
+  node backup.js
 }
 
 github_sync() {
-  title "🔄 GitHub Sync"
   need git
-  echo "🔄 Syncing with GitHub..."
-  # Clean common junk
-  find . -name "*.lock" -type f -delete
+  title "🔄 GitHub Sync"; echo
+  # light sanitize, commit if changes
+  find . -name "*.lock" -type f -delete || true
   git rm -r --cached backups 2>/dev/null || true
   git rm -r --cached node_modules/.cache 2>/dev/null || true
-
   git add .
   if ! git diff-index --quiet HEAD; then
-    git commit -m "Sync with GitHub: sanitize project structure"
-    git push
-    echo "✅ Pushed."
-  else
-    echo "ℹ️  No changes to commit."
+    git commit -m "Sync with GitHub: ship updates"
   fi
-  pause
+  git push
 }
 
-main_menu() {
-  clear
-  cat <<'MENU'
-
-Pick an option:
-  1) 🧪  Dev (start CRA on port 3002)
-  2) 🛠️  Build
-  3) 🚀  Deploy
-  4) 📦  Build + Deploy
-  5) 💾  Backup (node backup.js)
-  6) 🔄  GitHub Sync
-  0) ❌  Exit
-MENU
+show_menu() {
+  echo
+  echo "Pick an option:"
+  echo "  1) 🚀  Deploy"
+  echo "  2) 📦  Build + Deploy"
+  echo "  3) 💾  Backup (node backup.js)"
+  echo "  4) 🔄  GitHub Sync"
+  echo "  0) ❌  Exit"
   echo
   read -rp "Enter choice: " choice
-  case "${choice:-}" in
-    1) dev ;;
-    2) build ;;
-    3) deploy ;;
-    4) ship ;;
-    5) backup ;;
-    6) github_sync ;;
-    0) echo "👋 Bye!"; exit 0 ;;
-    *) echo "❌ Invalid option."; pause ;;
-  esac
+  echo
 }
 
-# Dependency preflight (only for tools we actually use)
-need bash
-# npm/npx/wrangler/git/node checks happen inside each task
+trap 'echo; echo "↩️  Returning to menu…";' INT
 
-# Loop forever until you pick Exit
+need node
+need npm
+# wrangler/git required only when used
+
 while true; do
-  main_menu
+  show_menu
+  case "${choice}" in
+    1) deploy_only ;;
+    2) ship ;;
+    3) backup ;;
+    4) github_sync ;;
+    0) echo "Bye! 👋"; exit 0 ;;
+
+    # --- Hidden shortcuts (not printed) ---
+    dev|d|d1) dev_cra ;;         # CRA dev
+    pages|d2) dev_pages ;;        # Pages Functions dev
+    build|b)  build_only ;;       # build only
+
+    *) echo "❌ Invalid option, try again." ;;
+  esac
+
+  echo
+  read -rp $'\n↩️  Press ENTER to return to the menu… ' _
 done

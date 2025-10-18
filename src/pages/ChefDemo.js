@@ -68,7 +68,6 @@ export default function ChefDemo() {
   const specsParam= params.get("specialties");
 
   const prefillChef = useMemo(() => {
-    // If any detail is present, construct a prefill object to use immediately.
     if (idParam || nameParam || photoParam || specsParam) {
       return {
         id: idParam || undefined,
@@ -86,40 +85,45 @@ export default function ChefDemo() {
   const [dishes, setDishes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dishLoading, setDishLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [hardError, setHardError] = useState(null); // only show for 5xx or network failures
 
-  // Load/resolve the chef. Prefer exact id match; otherwise keep the prefill; otherwise pick random.
+  // Load/resolve the chef. Gracefully handle 4xx (e.g., 400) by falling back to prefill/demo.
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    setError(null);
+    setHardError(null);
 
     (async () => {
       try {
         const res = await fetch(`/api/chefs?city=${encodeURIComponent(city)}&limit=100`, {
           headers: { accept: "application/json" },
         });
-        if (!res.ok) throw new Error(`Chefs API ${res.status}`);
-        const json = await res.json();
-        const list = Array.isArray(json?.chefs) ? json.chefs : [];
-        const approved = list.filter((c) => (c.status || "approved") === "approved");
 
+        let list = [];
+        if (res.ok) {
+          const json = await res.json();
+          list = Array.isArray(json?.chefs) ? json.chefs : [];
+        } else {
+          // Swallow 4xx (like 400) silently; only flag 5xx as a hard error.
+          console.warn(`Chefs API returned ${res.status}`);
+          if (res.status >= 500) setHardError(`Chefs API ${res.status}`);
+          list = [];
+        }
+
+        const approved = list.filter((c) => (c.status || "approved") === "approved");
         let chosen = null;
+
         if (idParam) {
           chosen = (approved.length ? approved : list).find((c) => String(c.id) === String(idParam)) || null;
         }
-
-        if (!chosen) {
-          // If we clicked a local/fallback card (no id) we keep the prefill intact.
-          chosen = prefillChef || pickRandom(approved.length ? approved : list);
-        }
+        if (!chosen) chosen = prefillChef || pickRandom(approved.length ? approved : list);
 
         if (!cancelled) setChef(chosen || prefillChef || null);
       } catch (e) {
+        console.warn("Chefs API fetch failed", e);
         if (!cancelled) {
-          // On error, still show the prefill so the page stays coherent.
           setChef(prefillChef || null);
-          setError(e.message || "Failed to load chef");
+          setHardError("Chefs API unavailable");
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -132,25 +136,37 @@ export default function ChefDemo() {
   // Load dishes for the chosen chef; fallback to demo dishes (food photos 6..10).
   useEffect(() => {
     let cancelled = false;
+
+    // If no real ID (local/demo card), just show demo dishes.
     if (!chef?.id) {
       setDishes(buildDemoDishes(chef?.name || "Local Chef", city));
       setDishLoading(false);
       return;
     }
-    setDishLoading(true);
 
+    setDishLoading(true);
     (async () => {
       try {
         const res = await fetch(`/api/dishes?city=${encodeURIComponent(city)}&limit=100`, {
           headers: { accept: "application/json" },
         });
-        if (!res.ok) throw new Error(`Dishes API ${res.status}`);
-        const json = await res.json();
-        const items = Array.isArray(json?.dishes) ? json.dishes : [];
+
+        let items = [];
+        if (res.ok) {
+          const json = await res.json();
+          items = Array.isArray(json?.dishes) ? json.dishes : [];
+        } else {
+          console.warn(`Dishes API returned ${res.status}`);
+          // Fall back to demo; only flag hard error for 5xx.
+          if (res.status >= 500) setHardError((prev) => prev || `Dishes API ${res.status}`);
+          items = [];
+        }
+
         let filtered = items.filter((d) => (d.chef_id || d.chefId) === chef.id);
         if (!filtered.length) filtered = buildDemoDishes(chef?.name || "Local Chef", city);
         if (!cancelled) setDishes(filtered.slice(0, 6));
-      } catch {
+      } catch (e) {
+        console.warn("Dishes API fetch failed", e);
         if (!cancelled) setDishes(buildDemoDishes(chef?.name || "Local Chef", city));
       } finally {
         if (!cancelled) setDishLoading(false);
@@ -233,8 +249,8 @@ export default function ChefDemo() {
         </div>
       </section>
 
-      {loading && <div className="notice">Loading chef…</div>}
-      {!loading && error && <div className="error">Error: {error}</div>}
+      {/* Only show a visible error for hard failures (5xx / network) */}
+      {hardError && <div className="error">Error: {hardError}</div>}
     </main>
   );
 }
